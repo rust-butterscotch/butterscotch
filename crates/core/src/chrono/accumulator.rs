@@ -8,17 +8,27 @@ pub struct Accumulator {
     timer: Timer,
     accum: Time,
     delta: Time,
+    accum_max: Time,
 }
 
 impl Accumulator {
 
-    pub fn new(delta: Time) -> Accumulator {
-        Accumulator{timer: Timer::new(), accum: Time::ZERO, delta }
+    pub fn new(delta: Time, count_max: u64) -> Accumulator {
+        Accumulator{
+            timer: Timer::new(),
+            accum: Time::ZERO,
+            delta,
+            accum_max: if count_max == 0 {
+                Time::MAX
+            } else {
+                delta * count_max
+            }
+        }
     }
 
     pub fn accumulate(&mut self) {
         self.timer.mark();
-        self.accum += self.timer.delta();
+        self.accum = (self.accum + self.timer.delta()).min(self.accum_max);
     }
 
     pub fn consume(&mut self) {

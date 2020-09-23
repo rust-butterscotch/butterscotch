@@ -2,9 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use std::collections::VecDeque;
-
-use crate::chrono::{Accumulator, Time, Timer, TimerSmooth};
+use crate::chrono::{Accumulator, Time, TimerSmooth};
 
 const SAMPLE_WINDOW: usize = 10;
 
@@ -16,14 +14,14 @@ pub struct Engine {
     should_redraw: bool,
          has_init: bool,
 
-    timer_update: TimerSmooth<10>,
-    timer_frame:  TimerSmooth<10>,
+    timer_update: TimerSmooth<{SAMPLE_WINDOW}>,
+    timer_frame:  TimerSmooth<{SAMPLE_WINDOW}>,
 }
 
 impl Engine {
     pub fn new() -> Engine {
         Engine{
-            accum_update: Accumulator::new(Time::from_i64(60, 1).recip()),
+            accum_update: Accumulator::new(Time::from_i64(60, 1).recip(), 10),
             request_close: false,
             should_close: false,
             should_redraw: false,
@@ -37,12 +35,13 @@ impl Engine {
 
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self) -> bool {
+        let mut result = false;
+
         if !self.has_init {
             self.has_init = true;
             self.world_init();
         }
-
 
         self.accum_update.accumulate();
         //println!("{}", self.accum_update.amount().0);
@@ -50,6 +49,7 @@ impl Engine {
         if self.accum_update.has_accumulated() {
 
             self.engine_update(self.accum_update.dt_fixed());
+            result = true;
 
             self.accum_update.consume();
             if self.accum_update.has_accumulated() && !self.should_redraw {
@@ -69,6 +69,8 @@ impl Engine {
             // TODO check if engine is allowed to close
             self.should_close = true;
         }
+
+        return result;
 
     }
 

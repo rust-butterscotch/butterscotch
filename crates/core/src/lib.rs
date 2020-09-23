@@ -20,9 +20,13 @@
 #![feature(fn_traits)]
 #![feature(shrink_to)]
 
+#[macro_use]
+extern crate static_assertions;
+
 pub mod container;
 pub mod math;
 pub mod util;
 pub mod chrono;
 pub mod init;
 pub mod engine;
+pub mod event;

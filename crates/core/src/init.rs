@@ -27,18 +27,17 @@ pub fn butterscotch_run() {
                 engine.request_close();
             },
             Event::MainEventsCleared => {
-                engine.update();
+                if engine.update() {
+                    println!(
+                        "fps: {}, tps: {}",
+                        engine.frame_timer().tps_average().round().into_i64(1),
+                        engine.update_timer().tps_average().round().into_i64(1)
+                    );
+                }
 
                 if engine.should_redraw() {
                     window.request_redraw();
                 }
-
-
-                println!(
-                    "fps: {}, tps: {}",
-                    engine.frame_timer().tps_average().round().into_i64(1),
-                    engine.update_timer().tps_average().round().into_i64(1)
-                );
             },
             Event::RedrawRequested(_) => {
                 engine.render();

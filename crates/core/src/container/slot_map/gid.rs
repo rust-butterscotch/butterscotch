@@ -79,10 +79,5 @@ impl GID {
     }
 }
 
-#[test]
-fn check_usize() {
-    assert!(
-        std::mem::size_of::<usize>() >= std::mem::size_of::<u32>(),
-        "usize is not at-least 32-bits, GIndex may misbehave"
-    );
-}
+// usize must be at-least 32-bits or GIndex may misbehave
+const_assert!(std::mem::size_of::<usize>() >= std::mem::size_of::<u32>());
