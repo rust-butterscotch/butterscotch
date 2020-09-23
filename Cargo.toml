@@ -1,0 +1,12 @@
+[workspace]
+
+members = [
+    "crates/core",
+    "examples/develop",
+    "tools/const_gen"
+]
+
+default-members = [
+    "crates/core",
+    "examples/develop",
+]
