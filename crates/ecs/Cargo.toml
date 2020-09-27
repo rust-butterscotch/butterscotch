@@ -1,5 +1,5 @@
 [package]
-name = "develop"
+name = "butterscotch-ecs"
 version = "0.1.0"
 authors = ["Michael Baker <butterscotch@notvery.moe>"]
 edition = "2018"
@@ -7,5 +7,4 @@ license = "Apache-2.0"
 
 [dependencies]
 
-butterscotch = { path = "../../crates/core" }
-butterscotch-winit = { path = "../../crates/winit" }
+butterscotch-common = { path = "../common" }

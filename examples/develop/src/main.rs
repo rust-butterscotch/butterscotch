@@ -1,8 +1,8 @@
+mod engine;
 
-#![feature(box_syntax)]
-
-use butterscotch::init::{butterscotch_run};
+use butterscotch::run_event_loop;
+use engine::*;
 
 fn main() {
-    butterscotch_run();
+    run_event_loop(Engine::new());
 }

@@ -2,11 +2,22 @@
 
 members = [
     "crates/core",
+    "crates/common",
+    "crates/ecs",
+    "crates/events",
+    "crates/winit",
+
     "examples/develop",
-    "tools/const_gen"
+
+    "tools/const_gen",
 ]
 
 default-members = [
     "crates/core",
+    "crates/common",
+    "crates/ecs",
+    "crates/events",
+    "crates/winit",
+
     "examples/develop",
 ]

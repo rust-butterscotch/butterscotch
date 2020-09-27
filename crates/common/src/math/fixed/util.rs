@@ -6,8 +6,7 @@ pub mod internal {
     #[inline(always)] pub const fn i128_mul(l: i64, r: i64) -> i128 { (l as i128) * (r as i128) }
     #[inline(always)] pub const fn i128_div(l: i64, r: i64) -> i128 { (l as i128) / (r as i128) }
 
-    #[inline(always)]
-    pub const fn dbg_i128_i64_overflow(v: i128) -> i64 {
+    #[inline(always)] pub const fn dbg_i128_i64_overflow(v: i128) -> i64 {
         debug_assert!(v <= (i64::MAX as i128), "overflow when converting i128 to i64");
         debug_assert!(v >= (i64::MIN as i128), "underflow when converting i128 to i64");
         v as i64

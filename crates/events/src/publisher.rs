@@ -4,26 +4,26 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use super::{Event, EventConsumer, EventQueue};
+use super::{Consumer, Queue};
 
 #[derive(Debug, Clone)]
-pub  struct EventPublisher {
-    queue: Rc<RefCell<EventQueue>>,
+pub  struct Publisher<T: Clone> {
+    queue: Rc<RefCell<Queue<T>>>,
 }
 
-impl EventPublisher {
-    pub fn new() -> EventPublisher {
-        EventPublisher{
-            queue: Rc::new(RefCell::new(EventQueue::new()))
+impl<T: Clone> Publisher<T> {
+    pub fn new() -> Publisher<T> {
+        Publisher{
+            queue: Rc::new(RefCell::new(Queue::new()))
         }
     }
 
-    pub fn publish(&mut self, ev: Event) {
+    pub fn publish(&mut self, ev: T) {
         self.queue.borrow_mut().publish(ev)
     }
 
-    pub fn listen(&self) -> EventConsumer {
-        EventConsumer::new(&self.queue)
+    pub fn listen(&self) -> Consumer<T> {
+        Consumer::new(&self.queue)
     }
 
     pub fn count(&self) -> usize {

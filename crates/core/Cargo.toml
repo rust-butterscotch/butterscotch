@@ -4,12 +4,13 @@ version = "0.0.1"
 authors = ["Michael Baker <butterscotch@notvery.moe>"]
 edition = "2018"
 license = "Apache-2.0"
-description = "Buttery-smooth 2D hobbyist game engine written in rust by a noobie. Heavily WIP."
-readme = "README.md"
-repository ="https://github.com/rust-butterscotch/butterscotch"
 
 [dependencies]
 vulkano = "0.19.0"
 vulkano-win = "0.19"
-winit = "0.22.2"
 static_assertions = "1.1.0"
+
+butterscotch-common = { path = "../common" }
+butterscotch-ecs    = { path = "../ecs" }
+butterscotch-events = { path = "../events" }
+butterscotch-winit  = { path = "../winit" }

@@ -2,42 +2,40 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use super::{GID_IDX_MASK, gid::GID};
-use std::collections::VecDeque;
+use super::gid::GID;
 
 const RESERVE_BLOCK_SIZE: usize = 128;
 
-pub struct SlotMap<T> {
+pub struct GIDStore<T> {
     lookup: Vec<GID>,
     data:   Vec<T>,
     indices: Vec<usize>,
-    freelist: VecDeque<GID>,
 }
 
-impl<T> SlotMap<T> {
+impl<T> GIDStore<T> {
 
-    pub fn new() -> SlotMap<T> {
-        SlotMap{
+    pub fn new() -> GIDStore<T> {
+        GIDStore{
             lookup: vec!(),
             data:   vec!(),
             indices: vec!(),
-            freelist: VecDeque::<GID>::new(),
         }
     }
 
-    pub fn insert(&mut self, v: T) -> GID {
-        if self.data.len() > GID_IDX_MASK as usize {
-            panic!("SlotMap out of room");
+    pub fn insert_at(&mut self, gid: GID, v: T) {
+        let idx = gid.get_idx();
+
+        if self.data.len() <= idx {
+            self.expand_lookup();
         }
 
-        if self.freelist.is_empty() {
-            self.expand_freelist();
+        if self.lookup[idx].is_valid() {
+            panic!("Slot already contains value");
         }
 
-        let index = self.freelist.pop_front().expect("Failed to allocate from freelist");
+        self.lookup[idx] = gid.with_idx(self.data.len());
         self.data.push(v);
-        self.indices.push(index.get_idx());
-        return index;
+        self.indices.push(idx);
     }
 
     pub fn remove(&mut self, gid: GID) -> Option<T> {
@@ -51,9 +49,6 @@ impl<T> SlotMap<T> {
                 // Note index, and mark invalid
                 let idx = data_gid.get_idx();
                 *data_gid = data_gid.as_invalid();
-
-                // Mark data free
-                self.freelist.push_back(gid);
 
                 // Remove data & back-reference via swap & pop
                 let result = Some(self.data.swap_remove(idx));
@@ -100,7 +95,6 @@ impl<T> SlotMap<T> {
         self.lookup.clear();
         self.data.clear();
         self.indices.clear();
-        self.freelist.clear();
     }
 
     pub fn is_empty(&self) -> bool {
@@ -115,10 +109,6 @@ impl<T> SlotMap<T> {
         self.data.len()
     }
 
-    pub fn freelist_len(&self) -> usize {
-        self.freelist.len()
-    }
-
     pub fn iter(&self) -> core::slice::Iter<'_, T> {
         self.data.iter()
     }
@@ -131,18 +121,16 @@ impl<T> SlotMap<T> {
         self.data.reserve(additional);
         self.indices.reserve(additional);
         self.lookup.reserve(self.data.capacity() - self.lookup.len());
-        self.freelist.reserve(additional);
     }
 
     pub fn shrink_to_fit(&mut self) {
         self.lookup.shrink_to_fit(); // Don't remove freed lookups
         self.data.shrink_to_fit();
         self.indices.shrink_to_fit();
-        self.freelist.shrink_to_fit();
     }
 
-    pub fn keys<'a>(&'a self) -> SlotMapKeyIter::<'a, T> {
-        SlotMapKeyIter::<'a, T>{ map: self, current: 0, }
+    pub fn keys<'a>(&'a self) -> ComponentMapKeyIter::<'a, T> {
+        ComponentMapKeyIter::<'a, T>{ map: self, current: 0, }
     }
 
     pub fn get_key_at(&self, id: usize) -> Option<GID> {
@@ -153,30 +141,26 @@ impl<T> SlotMap<T> {
 
     //TODO pub fn retain<F>(&mut self, f: F) where F: FnMut(&K, &mut V) -> bool,
 
-    fn expand_freelist(&mut self) {
+    fn expand_lookup_by(&mut self, reserve_count: usize) {
         let lookup_len = self.lookup.len();
         if lookup_len >= std::usize::MAX - 1 { panic!("SlotMap out of memory"); }
-        // We don't need to check freelist since freelist.len <= lookup_len
 
-        let reserve_count = RESERVE_BLOCK_SIZE.min(std::usize::MAX - lookup_len);
         self.lookup.resize(lookup_len + reserve_count, GID::new());
         self.data.reserve(reserve_count);
+    }
 
-        let mut i = 0;
-        self.freelist.reserve(reserve_count);
-        self.freelist.resize_with(self.freelist.len()+reserve_count, ||{
-            i+=1;
-            GID::new().renew_as(lookup_len+i-1)
-        });
+    fn expand_lookup(&mut self) {
+        self.expand_lookup_by(RESERVE_BLOCK_SIZE.min(std::usize::MAX - self.lookup.len()))
     }
 }
 
-pub struct SlotMapKeyIter<'a, T> {
-    map: &'a SlotMap<T>,
+
+pub struct ComponentMapKeyIter<'a, T> {
+    map: &'a GIDStore<T>,
     current: usize,
 }
 
-impl<'a, T> Iterator for SlotMapKeyIter<'a, T> {
+impl<'a, T> Iterator for ComponentMapKeyIter<'a, T> {
     type Item = GID;
 
     fn next(&mut self) -> Option<Self::Item> {

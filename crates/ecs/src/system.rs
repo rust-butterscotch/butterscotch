@@ -2,6 +2,12 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-mod engine;
+use std::any::TypeId;
 
-pub use engine::*;
+use butterscotch_common::container::{GID};
+
+pub trait System<T> {
+    fn notify(&mut self, event: &T);
+    fn entity_destroyed(&mut self, id: GID);
+    fn type_id(&self) -> TypeId;
+}

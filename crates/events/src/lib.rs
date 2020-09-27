@@ -2,19 +2,12 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-mod def;
-pub mod consts;
-mod general;
-mod polyfill;
-mod util;
-mod ops;
+mod consumer;
+mod queue;
+mod publisher;
 
-pub use def::*;
-// pub use consts::*;
-pub use general::*;
-pub use polyfill::*;
-pub use util::*;
-pub use ops::*;
+pub use publisher::*;
+pub use consumer::*;
+pub(crate) use queue::*;
 
-#[cfg(test)]
-mod test;
+#[macro_use] extern crate static_assertions;

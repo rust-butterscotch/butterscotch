@@ -2,22 +2,21 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-pub const GID_IDX_MASK:      u32 = 0x00FFFFFF;
-pub const GID_GEN_MASK:      u32 = 0xFF000000;
-pub const GID_GEN_VALID_MIN: u32 = 0x01000000;
-
+#[repr(packed)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
-pub struct GID(u32);
+pub struct GID {
+    idx: u32,
+    gen: u16,
+}
 
 impl GID {
     #[inline(always)]
     pub fn new() -> GID {
-        GID(0)
+        GID{idx: 0, gen: 0}
     }
 
     pub fn with_idx(self, idx: usize) -> GID {
-        if (idx & !(GID_IDX_MASK as usize)) != 0 { panic!("GIndex idx overflow"); }
-        GID(self.get_gen() | (idx as u32))
+        GID{idx: idx as u32, gen: self.gen}
     }
 
     pub fn renew_as(self, idx: usize) -> GID {
@@ -33,34 +32,29 @@ impl GID {
     }
 
     pub fn renew_as_32(self, idx: u32) -> GID {
-        if (idx & !GID_IDX_MASK) != 0 { panic!("GIndex idx overflow"); }
-        match self.get_gen().checked_add(GID_GEN_VALID_MIN) {
-            Some(g) => GID(                g | idx),
-            None    => GID(GID_GEN_VALID_MIN | idx)
-        }
+        GID{idx, gen: self.gen + 1}
     }
 
     pub fn try_renew_as_32(&self, idx: u32) -> Option<GID> {
-        if (idx & !GID_IDX_MASK) != 0 { panic!("GIndex idx overflow"); }
-        match self.get_gen().checked_add(GID_GEN_VALID_MIN) {
-            Some(g) => Some(GID(g | idx)),
-            None    => None
+        match self.get_gen() == u16::MAX {
+            true  => None,
+            false => Some(self.renew_as_32(idx)),
         }
     }
 
     #[inline(always)]
     pub fn as_invalid(self) -> GID {
-        GID(self.get_idx() as u32)
+        GID{idx: self.idx, gen: 0}
     }
 
     #[inline(always)]
     pub fn match_gen(&self, other: &GID) -> bool {
-        ((self.0 ^ other.0) & GID_GEN_MASK) == 0
+        self.gen == other.gen
     }
 
     #[inline(always)]
     pub fn is_valid(&self) -> bool {
-        self.0 >= GID_GEN_VALID_MIN
+        self.gen > 0
     }
 
     #[inline(always)]
@@ -70,12 +64,12 @@ impl GID {
 
     #[inline(always)]
     pub fn get_idx_32(&self) -> u32 {
-        self.0 & GID_IDX_MASK
+        self.idx
     }
 
     #[inline(always)]
-    pub fn get_gen(&self) -> u32 {
-        self.0 & GID_GEN_MASK
+    pub fn get_gen(&self) -> u16 {
+        self.gen
     }
 }
 

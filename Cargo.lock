@@ -60,9 +60,42 @@ checksum = "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a"
 name = "butterscotch"
 version = "0.0.1"
 dependencies = [
+ "butterscotch-common",
+ "butterscotch-ecs",
+ "butterscotch-events",
+ "butterscotch-winit",
  "static_assertions",
  "vulkano",
  "vulkano-win",
+]
+
+[[package]]
+name = "butterscotch-common"
+version = "0.1.0"
+dependencies = [
+ "static_assertions",
+]
+
+[[package]]
+name = "butterscotch-ecs"
+version = "0.1.0"
+dependencies = [
+ "butterscotch-common",
+]
+
+[[package]]
+name = "butterscotch-events"
+version = "0.1.0"
+dependencies = [
+ "butterscotch-common",
+ "static_assertions",
+]
+
+[[package]]
+name = "butterscotch-winit"
+version = "0.1.0"
+dependencies = [
+ "butterscotch-common",
  "winit",
 ]
 
@@ -257,6 +290,7 @@ name = "develop"
 version = "0.1.0"
 dependencies = [
  "butterscotch",
+ "butterscotch-winit",
 ]
 
 [[package]]

@@ -2,6 +2,8 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
+#![optimize(speed)]
+
 use super::*;
 use super::util::internal::*;
 
@@ -35,101 +37,108 @@ impl<const SCALE_L: i64> FixedBase<SCALE_L> {
             (i128_mul(self.0, rhs.0) * (SCALE_D as i128))/i128_mul(div.0, SCALE_R)
         ))
     }
-}
 
 
-// ///////// //
-// // Add // //
-// ///////// //
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Add<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-
-    fn add(self, rhs: FixedBase<SCALE_R>) -> Self::Output {
+    pub const fn add<const SCALE_R: i64>(self, rhs: FixedBase<SCALE_R>) -> Self {
         Self(dbg_i128_i64_overflow(
             (i128_mul(SCALE_R, self.0) + i128_mul(SCALE_L, rhs.0))/(SCALE_R as i128)
         ))
     }
-}
 
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::AddAssign<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    fn add_assign(&mut self, rhs: FixedBase<SCALE_R>) { *self = *self + rhs; }
-}
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Add<&FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-    fn add(self, rhs: &FixedBase<SCALE_R>) -> Self::Output { self + *rhs }
-}
-
-// ///////// //
-// // Sub // //
-// ///////// //
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Sub<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-
-    fn sub(self, rhs: FixedBase<SCALE_R>) -> Self::Output {
+    pub const fn sub<const SCALE_R: i64>(self, rhs: FixedBase<SCALE_R>) -> Self {
         Self(dbg_i128_i64_overflow(
             (i128_mul(SCALE_R, self.0) - i128_mul(SCALE_L, rhs.0))/(SCALE_R as i128)
         ))
     }
-}
 
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::SubAssign<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    fn sub_assign(&mut self, rhs: FixedBase<SCALE_R>) { *self = *self - rhs; }
-}
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Sub<&FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-    fn sub(self, rhs: &FixedBase<SCALE_R>) -> Self::Output { self - *rhs }
-}
-
-// ///////// //
-// // Mul // //
-// ///////// //
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Mul<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-
-    fn mul(self, rhs: FixedBase<SCALE_R>) -> Self::Output {
+    pub const fn mul<const SCALE_R: i64>(self, rhs: FixedBase<SCALE_R>) -> Self {
         Self(dbg_i128_i64_overflow(
             i128_mul(self.0, rhs.0)/(SCALE_R as i128)
         ))
     }
-}
 
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::MulAssign<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    fn mul_assign(&mut self, rhs: FixedBase<SCALE_R>) { *self = *self * rhs; }
-}
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Mul<&FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-    fn mul(self, rhs: &FixedBase<SCALE_R>) -> Self::Output { self * *rhs }
-}
-
-// ///////// //
-// // Div // //
-// ///////// //
-
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Div<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    type Output = Self;
-
-    fn div(self, rhs: FixedBase<SCALE_R>) -> Self::Output {
+    pub const fn div<const SCALE_R: i64>(self, rhs: FixedBase<SCALE_R>) -> Self {
         Self(dbg_i128_i64_overflow(
             i128_mul(self.0, SCALE_R)/(rhs.0 as i128)
         ))
     }
 }
 
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::DivAssign<FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
-    fn div_assign(&mut self, rhs: FixedBase<SCALE_R>) { *self = *self / rhs; }
-}
+// // Fixed Ops // //
 
-impl<const SCALE_L: i64, const SCALE_R: i64> std::ops::Div<&FixedBase<SCALE_R>> for FixedBase<SCALE_L> {
+impl<const SCALE: i64> std::ops::Add<FixedBase<SCALE>> for FixedBase<SCALE> {
     type Output = Self;
-    fn div(self, rhs: &FixedBase<SCALE_R>) -> Self::Output { self / *rhs }
+    fn add(self, rhs: FixedBase<SCALE>) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
 }
 
+impl<const SCALE: i64> std::ops::Sub<FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+
+    fn sub(self, rhs: FixedBase<SCALE>) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl<const SCALE: i64> std::ops::Mul<FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+
+    fn mul(self, rhs: FixedBase<SCALE>) -> Self::Output {
+        Self(dbg_i128_i64_overflow(
+            i128_mul(self.0, rhs.0)/(SCALE as i128)
+        ))
+    }
+}
+
+impl<const SCALE: i64> std::ops::Div<FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+
+    fn div(self, rhs: FixedBase<SCALE>) -> Self::Output {
+        Self(dbg_i128_i64_overflow(
+            i128_mul(self.0, SCALE)/(rhs.0 as i128)
+        ))
+    }
+}
+
+// // Fixed Ops - Derive // //
+
+impl<const SCALE: i64> std::ops::AddAssign<FixedBase<SCALE>> for FixedBase<SCALE> {
+    fn add_assign(&mut self, rhs: FixedBase<SCALE>) { *self = *self + rhs; }
+}
+
+impl<const SCALE: i64> std::ops::SubAssign<FixedBase<SCALE>> for FixedBase<SCALE> {
+    fn sub_assign(&mut self, rhs: FixedBase<SCALE>) { *self = *self - rhs; }
+}
+
+impl<const SCALE: i64> std::ops::MulAssign<FixedBase<SCALE>> for FixedBase<SCALE> {
+    fn mul_assign(&mut self, rhs: FixedBase<SCALE>) { *self = *self * rhs; }
+}
+
+impl<const SCALE: i64> std::ops::DivAssign<FixedBase<SCALE>> for FixedBase<SCALE> {
+    fn div_assign(&mut self, rhs: FixedBase<SCALE>) { *self = *self / rhs; }
+}
+
+
+impl<const SCALE: i64> std::ops::Add<&FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+    fn add(self, rhs: &FixedBase<SCALE>) -> Self::Output { self + *rhs }
+}
+
+impl<const SCALE: i64> std::ops::Sub<&FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+    fn sub(self, rhs: &FixedBase<SCALE>) -> Self::Output { self - *rhs }
+}
+
+impl<const SCALE: i64> std::ops::Mul<&FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+    fn mul(self, rhs: &FixedBase<SCALE>) -> Self::Output { self * *rhs }
+}
+
+impl<const SCALE: i64> std::ops::Div<&FixedBase<SCALE>> for FixedBase<SCALE> {
+    type Output = Self;
+    fn div(self, rhs: &FixedBase<SCALE>) -> Self::Output { self / *rhs }
+}
 
 // ///////////// //
 // // Int Ops // //

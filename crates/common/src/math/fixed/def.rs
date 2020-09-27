@@ -18,7 +18,7 @@ impl<const SCALE: i64> FixedBase<SCALE> {
         Self(dbg_i128_i64_overflow((units as i128 * Self::SCALE_128)/(scale as i128)))
     }
 
-    pub const fn from_f64(units: f64) -> Self {
+    pub fn from_f64(units: f64) -> Self {
         Self((units * Self::SCALE_64_F) as i64) // TODO overflow
     }
 
@@ -26,7 +26,7 @@ impl<const SCALE: i64> FixedBase<SCALE> {
         FixedBase::<SCALE>::from_i64(value.0, SCALE_2)
     }
 
-    pub const fn into_f64(self) -> f64 {
+    pub fn into_f64(self) -> f64 {
         (self.0 as f64) / Self::SCALE_64_F
     }
 

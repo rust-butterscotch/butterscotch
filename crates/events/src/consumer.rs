@@ -4,17 +4,17 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use super::{Event, EventQueue, OffsetInt};
+use super::{Queue, OffsetInt};
 
 #[derive(Debug)]
-pub struct EventConsumer {
-    queue: Rc<RefCell<EventQueue>>,
+pub struct Consumer<T: Clone> {
+    queue: Rc<RefCell<Queue<T>>>,
     pos_read: OffsetInt
 }
 
-impl EventConsumer {
-    pub(super) fn new(queue: &Rc<RefCell<EventQueue>>) -> EventConsumer {
-        EventConsumer{
+impl<T: Clone> Consumer<T> {
+    pub(super) fn new(queue: &Rc<RefCell<Queue<T>>>) -> Consumer<T> {
+        Consumer{
             queue: queue.clone(),
             pos_read: queue.borrow_mut().listen()
         }
@@ -29,8 +29,8 @@ impl EventConsumer {
     }
 }
 
-impl Iterator for EventConsumer {
-    type Item = Event;
+impl<T: Clone> Iterator for &mut Consumer<T> {
+    type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         match self.queue.borrow_mut().consume(self.pos_read) {
             Ok(v) => {
@@ -43,5 +43,11 @@ impl Iterator for EventConsumer {
                 None
             }
         }
+    }
+}
+
+impl<T: Clone> Drop for Consumer<T> {
+    fn drop(&mut self) {
+        self.queue.borrow_mut().unlisten(self.pos_read);
     }
 }
