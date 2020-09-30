@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch::{WindowController, WindowEventLoopController, chrono::{Accumulator, Time, TimerSmooth}};
+use butterscotch::{WindowController, WindowEventLoopController, chrono::{Accumulator, TimerSmooth}};
 
 const SAMPLE_WINDOW: usize = 10;
 
@@ -34,13 +34,11 @@ impl WindowEventLoopController for Engine {
             self.accum_update.consume();
             should_render = !self.accum_update.has_accumulated();
 
-            if should_render {
-                window.set_title(&format!(
-                    "fps: {}, tps: {}",
-                    self.timer_frame.tps_average().round().into_i64(1),
-                    self.timer_update.tps_average().round().into_i64(1)
-                ));
-            }
+            window.set_title(&format!(
+                "fps: {}, tps: {}",
+                self.timer_frame.tps_average().round(),
+                self.timer_update.tps_average().round()
+            ));
         }
 
         if should_render {
@@ -76,7 +74,7 @@ impl Engine {
 
     pub fn new() -> Engine {
         Engine{
-            accum_update: Accumulator::new(Time::from_i64(60, 1).recip(), 10),
+            accum_update: Accumulator::new(1.0/60.0, 10),
             request_close: false,
             timer_update: TimerSmooth::new(),
             timer_frame:  TimerSmooth::new(),
@@ -87,7 +85,7 @@ impl Engine {
 
     }
 
-    fn engine_update(&mut self, _dt: Time) {
+    fn engine_update(&mut self, _dt: f64) {
 
     }
 

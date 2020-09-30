@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch_common::chrono::{Time, Timer};
+use butterscotch_common::chrono::{Timer};
 use winit::{event::{Event, WindowEvent}, event_loop::{ControlFlow, EventLoop}, window::WindowBuilder};
 
 pub trait WindowEventLoopController {
@@ -48,7 +48,7 @@ pub fn run_event_loop<T: WindowEventLoopController + 'static>(mut controller: T)
 
     let mut title_timer = Timer::new();
     let mut title_pending: Option<String> = None;
-    let     title_min_time = Time::from_i64(1, 1);
+    let     title_min_time = 1.0/60.0;
 
     event_loop.run(move |event, _, control_flow| {
         let mut window_controller = WindowController::new();

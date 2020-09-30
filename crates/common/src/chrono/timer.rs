@@ -2,7 +2,6 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use super::*;
 use std::time::Instant;
 
 #[derive(Debug, Copy, Clone)]
@@ -29,15 +28,19 @@ impl Timer {
         self.current = Instant::now();
     }
 
-    pub fn delta(&self) -> Time {
-        Time::new(
-            self.current.duration_since(self.last).as_nanos().min(i64::MAX as u128) as i64
-        )
+    pub fn delta_nano(&self) -> u64 {
+        self.current.duration_since(self.last).as_nanos().min(u64::MAX as u128) as u64
     }
 
-    pub fn total(&self) -> Time {
-        Time::new(
-            self.current.duration_since(self.start).as_nanos().min(i64::MAX as u128) as i64
-        )
+    pub fn delta(&self) -> f64 {
+        (self.current.duration_since(self.last).as_nanos().min(u64::MAX as u128) as f64)/1e9
+    }
+
+    pub fn total_nano(&self) -> u64 {
+        self.current.duration_since(self.start).as_nanos().min(u64::MAX as u128) as u64
+    }
+
+    pub fn total(&self) -> f64 {
+        (self.current.duration_since(self.start).as_nanos().min(u64::MAX as u128) as f64)/1e9
     }
 }
