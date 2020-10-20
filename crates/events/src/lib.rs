@@ -2,12 +2,11 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-mod consumer;
-mod queue;
-mod publisher;
+#![feature(core_intrinsics)]
+#![feature(unboxed_closures)]
 
-pub use publisher::*;
-pub use consumer::*;
-pub(crate) use queue::*;
+mod loan_vec;
+mod event_system;
 
-#[macro_use] extern crate static_assertions;
+pub(crate) use loan_vec::*;
+pub use event_system::*;
