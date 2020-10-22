@@ -9,5 +9,4 @@ license = "Apache-2.0"
 
 [dependencies]
 winit = "0.22.2"
-
 butterscotch-common = { path = "../common" }

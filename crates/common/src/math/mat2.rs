@@ -44,7 +44,7 @@ impl Mat2 {
 
 impl Mat2 {
     /// Constructs a matrix with the given value down the l -> r diagonal of the matrix
-    pub fn new_diagonal(v: real) -> Mat2 {
+    #[inline] pub fn new_diagonal(v: real) -> Mat2 {
         Mat2([
             vec2!(v,   0.0),
             vec2!(0.0, v  ),
@@ -52,7 +52,7 @@ impl Mat2 {
     }
 
     /// Constructs a scale matrix
-    pub fn new_scale(v: Vec2) -> Mat2 {
+    #[inline] pub fn new_scale(v: Vec2) -> Mat2 {
         Mat2([
             vec2!(v[0],  0.0),
             vec2!( 0.0, v[1])
@@ -60,7 +60,7 @@ impl Mat2 {
     }
 
     /// Constructs a skew matrix
-    pub fn new_skew(v: Vec2) -> Mat2 {
+    #[inline] pub fn new_skew(v: Vec2) -> Mat2 {
         Mat2([
             vec2!( 1.0, v[0]),
             vec2!(v[1],  1.0)
@@ -68,7 +68,7 @@ impl Mat2 {
     }
 
     /// Constructs a rotation matrix from the assumed unit-length normal
-    pub fn new_rotation_from_norm(v: Vec2) -> Mat2 {
+    #[inline] pub fn new_rotation_from_norm(v: Vec2) -> Mat2 {
         Mat2([
             vec2!(v[0], -v[1]),
             vec2!(v[1],  v[0]),
@@ -76,7 +76,7 @@ impl Mat2 {
     }
 
     /// Constructs a reflection matrix from the assumed unit-length normal of 2*angle
-    pub fn new_reflection_from_dnorm(v: Vec2) -> Mat2 {
+    #[inline] pub fn new_reflection_from_dnorm(v: Vec2) -> Mat2 {
         Mat2([
             vec2!(v[0],  v[1]),
             vec2!(v[1], -v[0]),
@@ -87,12 +87,12 @@ impl Mat2 {
 impl Mat2 {
 
     /// Calculates the determinant of the matrix
-    pub fn determinant(self) -> real {
-        self[0][0]*self[1][1] - self[0][1]*self[1][0]
+    #[inline] pub fn determinant(self) -> real {
+        self[0].x*self[1].y - self[0].y*self[1].x
     }
 
     /// Calculates the transposition of the matrix
-    pub fn transpose(self) -> Mat2 {
+    #[inline] pub fn transpose(self) -> Mat2 {
         Mat2([self.col(0), self.col(1)])
     }
 
@@ -103,8 +103,8 @@ impl Mat2 {
         match inv_det.is_finite() {
             false => None,
             true  => Some(Mat2([
-                vec2!( self[1][1]*inv_det, -self[0][1]*inv_det),
-                vec2!(-self[1][0]*inv_det,  self[0][0]*inv_det),
+                vec2!( self[1].y*inv_det, -self[0].y*inv_det),
+                vec2!(-self[1].x*inv_det,  self[0].x*inv_det),
             ]))
         }
     }
@@ -112,7 +112,7 @@ impl Mat2 {
 
 impl Mat2 {
     /// Multiplies the given vector by this matrix, applying the transformation
-    pub fn mul_vec(self, other: Vec2) -> Vec2 {
+    #[inline] pub fn mul_vec(self, other: Vec2) -> Vec2 {
         vec2!(
             self[0].dot(other),
             self[1].dot(other)
@@ -120,7 +120,7 @@ impl Mat2 {
     }
 
     /// Multiplies the given matrix by this matrix, applying the transformation
-    pub fn mul_mat(self, other: Mat2) -> Mat2 {
+    #[inline] pub fn mul_mat(self, other: Mat2) -> Mat2 {
         Mat2([
             vec2!(self[0].dot(other.col(0)), self[0].dot(other.col(1))),
             vec2!(self[1].dot(other.col(0)), self[1].dot(other.col(1))),
@@ -128,27 +128,27 @@ impl Mat2 {
     }
 
     /// Calculates the sums of two matrices component-wise
-    pub fn add_comp(self, other: Mat2) -> Mat2 {
+    #[inline] pub fn add_comp(self, other: Mat2) -> Mat2 {
         Mat2([self[0]+other[0], self[1]+other[1]])
     }
 
     /// Calculates the difference of two matrices component-wise
-    pub fn sub_comp(self, other: Mat2) -> Mat2 {
+    #[inline] pub fn sub_comp(self, other: Mat2) -> Mat2 {
         Mat2([self[0]-other[0], self[1]-other[1]])
     }
 
     /// Multiplies each component of the matrix by a fixed value
-    pub fn mul_scalar(self, other: real) -> Mat2 {
+    #[inline] pub fn mul_scalar(self, other: real) -> Mat2 {
         Mat2([self[0]*other, self[1]*other])
     }
 
     /// Divides each component of the matrix by a fixed value
-    pub fn div_scalar(self, other: real) -> Mat2 {
+    #[inline] pub fn div_scalar(self, other: real) -> Mat2 {
         Mat2([self[0]/other, self[1]/other])
     }
 
     /// Divides a fixed value by each component of the matrix
-    pub fn recip_scalar(self, other: real) -> Mat2 {
+    #[inline] pub fn recip_scalar(self, other: real) -> Mat2 {
         Mat2([other/self[0], other/self[1]])
     }
 }

@@ -7,13 +7,13 @@ macro_rules! impl_mat2d { ($s:ident, $v:ident) => {
     impl $s {
 
         /// Construct a rotation matrix that will rotate a vector ccw by the given angle
-        pub fn new_rotation_from_angle(a: real) -> Self {
+        #[inline] pub fn new_rotation_from_angle(a: real) -> Self {
             Self::new_rotation_from_norm(Vec2::from_angle(a))
         }
 
         /// Constructs a rotation matrix that will rotate a vector ccw from +x to the target point
         /// If `v` is zero-length, then `none` will be returned
-        pub fn new_rotation_from_dir(v: Vec2) -> Option<Self> {
+        #[inline] pub fn new_rotation_from_dir(v: Vec2) -> Option<Self> {
             match v.normalize() {
                 Some(v) => Some(Self::new_rotation_from_norm(v)),
                 None    => None,
@@ -21,13 +21,13 @@ macro_rules! impl_mat2d { ($s:ident, $v:ident) => {
         }
 
         /// Construct a reflection matrix that will reflect a vector about a line along +x rotated ccw by the given angle
-        pub fn new_reflection(a: real) -> Self {
+        #[inline] pub fn new_reflection(a: real) -> Self {
             Self::new_reflection_from_dnorm(Vec2::from_angle(2.0*a))
         }
 
         /// Construct a reflection matrix that will reflect a vector about a line
         /// If `v` is zero-length, then `none` will be returned
-        pub fn new_reflection_over_dir(v: Vec2) -> Option<Self> {
+        #[inline] pub fn new_reflection_over_dir(v: Vec2) -> Option<Self> {
             match v.normalize() {
                 Some(v) => Some(Self::new_reflection_from_dnorm(v.rotate_by(v))),
                 None    => None,
@@ -37,12 +37,12 @@ macro_rules! impl_mat2d { ($s:ident, $v:ident) => {
 
     impl $s {
         /// Returns a copy of the row at the given index
-        pub fn row(self, i: usize) -> $v {
+        #[inline] pub fn row(self, i: usize) -> $v {
             self.0[i]
         }
 
         /// Returns a copy of the col at the given index
-        pub fn col(self, i: usize) -> $v {
+        #[inline] pub fn col(self, i: usize) -> $v {
             let mut result: $v = Default::default();
             for j in 0..self.0.len() { result[i] = self[j][i]; }
             result
@@ -54,7 +54,7 @@ macro_rules! impl_mat2d { ($s:ident, $v:ident) => {
     // ///////////// //
 
     impl Default for $s {
-        fn default() -> Self { Self::IDENTITY }
+        #[inline] fn default() -> Self { Self::IDENTITY }
     }
 
     // ///////////////////// //

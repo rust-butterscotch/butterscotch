@@ -5,104 +5,139 @@
 use super::{Vec2, real};
 
 /// Vector representing a 2D coordinate in a homogenous space
-#[repr(transparent)]
 #[derive(Debug, Copy, Clone, PartialEq, Default, PartialOrd)]
-pub struct Vec3(pub [real; 3]);
+pub struct Vec3 {
+    pub x: real,
+    pub y: real,
+    pub w: real,
+}
 
 /// Constructs a vec2d through shorthand.
 #[macro_export] macro_rules! vec3 {
-    ($x:expr, $y:expr, $w:expr) => { crate::math::Vec3([$x, $y, $w]) };
+    ($x:expr, $y:expr, $w:expr) => { crate::math::Vec3{x: $x, y: $y, w: $w} };
 }
 
 /// Constructs a vec2d through shorthand with `w` = 1.0
 #[macro_export] macro_rules! pnt2d {
-    ($x:expr, $y:expr) => { crate::math::Vec3D([$x, $y, 1.0]); };
+    ($x:expr, $y:expr) => { crate::math::Vec3{x: $x, y: $y, w: 1.0} };
 }
 
 /// Constructs a vec2d through shorthand with `w` = 0.0
 #[macro_export] macro_rules! dir2d {
-    ($x:expr, $y:expr) => { crate::math::Vec3D([$x, $y, 0.0]); };
+    ($x:expr, $y:expr) => { crate::math::Vec3{x: $x, y: $y, w: 0.0} };
 }
 
 impl Vec3 {
     /// Vector with all components set to 0
-    pub const ZERO: Self = Self([ 0.0,  0.0,  0.0]);
+    pub const ZERO: Self = Self{x: 0.0, y: 0.0, w: 0.0};
 
     /// Vector with all components set to 1
-    pub const ONE: Self = Self([ 1.0,  1.0,  1.0]);
+    pub const ONE: Self = Self{x: 1.0, y: 1.0, w: 1.0};
 
     /// Direction vector towards the right (+x) axis
-    pub const RIGHT: Self = Self([ 1.0,  0.0,  0.0]);
+    pub const RIGHT: Self = Self{x: 1.0, y: 0.0, w: 0.0};
 
     /// Direction vector towards the up (+y) axis
-    pub const UP: Self = Self([ 0.0,  1.0,  0.0]);
+    pub const UP: Self = Self{x: 0.0, y: 1.0, w: 0.0};
 
     /// Direction vector towards the left (-x) axis
-    pub const LEFT: Self = Self([ -1.0,  0.0,  0.0]);
+    pub const LEFT: Self = Self{x:-1.0, y: 0.0, w: 0.0};
 
     /// Direction vector towards the down (-y) axis
-    pub const DOWN: Self = Self([ 0.0,  -1.0,  0.0]);
+    pub const DOWN: Self = Self{x: 0.0, y:-1.0, w: 0.0};
 }
 
 impl Vec3 {
     /// Creates a new vector given (x, y)
-    #[inline(always)]
-    pub fn new(x: real, y:  real, w: real) -> Self {
-        Self([x,y,w])
+    #[inline] pub fn new(x: real, y:  real, w: real) -> Self {
+        Self{x, y, w}
     }
 
     /// Converts this vector into cartesian space, by adding a w component
-    #[inline(always)]
-    pub fn from_cartesian(v: Vec2, w: real) -> Self {
-        Self([v[0],v[1],w])
+    #[inline] pub fn from_cartesian(v: Vec2, w: real) -> Self {
+        Self{x: v.x, y: v.x, w}
+    }
+
+    #[inline] pub fn len() -> usize {
+        3
     }
 
     #[doc(hidden)]
-    #[inline(always)]
-    fn with_xy(self, x: real, y: real) -> Self {
-        Self([x, y, self[2]])
+    #[inline] fn with_xy(self, x: real, y: real) -> Self {
+        Self{x, y, w: self.w}
     }
 }
 
 impl Vec3 {
+    // Calculates the sum of each element
+    #[inline] pub fn taxicab_distance(self) -> real {
+        self.x + self.y
+    }
+
     /// Negates the vector
     #[inline] pub fn negate(self) -> Self {
-        Self::new(-self[0], -self[1], -self[2])
+        Self::new(-self.x, -self.y, -self.w)
     }
 
-    /// Calculates (self[0] + rhs[0], self[1] + rhs[1]...)
+    /// Calculates (self.x + rhs.x, self.y + rhs.y...)
     #[inline] pub fn add_comp(self, rhs: Self) -> Self {
-        Self::new(self[0]+rhs[0], self[1]+rhs[1], self[2]+rhs[2])
+        Self::new(self.x+rhs.x, self.y+rhs.y, self.w+rhs.w)
     }
 
-    /// Calculates (self[0] - rhs[0], self[1] - rhs[1]...)
+    /// Calculates (self.x - rhs.x, self.y - rhs.y...)
     #[inline] pub fn sub_comp(self, rhs: Self) -> Self {
-        Self::new(self[0]-rhs[0], self[1]-rhs[1], self[2]-rhs[2])
+        Self::new(self.x-rhs.x, self.y-rhs.y, self.w-rhs.w)
     }
 
-    /// Calculates (self[0] * rhs[0], self[1] * rhs[1]...)
+    /// Calculates (self.x * rhs.x, self.y * rhs.y...)
     #[inline] pub fn mul_comp(self, rhs: Self) -> Self {
-        Self::new(self[0]*rhs[0], self[1]*rhs[1], self[2]*rhs[2])
+        Self::new(self.x*rhs.x, self.y*rhs.y, self.w*rhs.w)
     }
 
-    /// Calculates (self[0] / rhs[0], self[1] / rhs[1]...)
+    /// Calculates (self.x / rhs.x, self.y / rhs.y...)
     #[inline] pub fn div_comp(self, rhs: Self) -> Self {
-        Self::new(self[0]/rhs[0], self[1]/rhs[1], self[2]/rhs[2])
+        Self::new(self.x/rhs.x, self.y/rhs.y, self.w/rhs.w)
     }
 
-    /// Calculates (self[0] * rhs, self[1] * rhs...)
+    /// Calculates (self.x * rhs, self.y * rhs...)
     #[inline] pub fn mul_scalar(self, rhs: real) -> Self {
-        Self::new(self[0]*rhs, self[1]*rhs, self[2]*rhs)
+        Self::new(self.x*rhs, self.y*rhs, self.w*rhs)
     }
 
-    /// Calculates (self[0] / rhs, self[1] / rhs...)
+    /// Calculates (self.x / rhs, self.y / rhs...)
     #[inline] pub fn div_scalar(self, rhs: real) -> Self {
         self.mul_scalar(1.0/rhs)
     }
 
-    /// Calculates (num / self[0], num / self[1]...)
+    /// Calculates (num / self.x, num / self.y...)
     #[inline] pub fn recip_scalar(self, num: real) -> Self {
-        Self::new(num/self[0], num/self[1], num/self[2])
+        Self::new(num/self.x, num/self.y, num/self.w)
+    }
+}
+
+// ///////////////////// //
+// // Index operation // //
+// ///////////////////// //
+impl core::ops::Index<usize> for Vec3 {
+    type Output = real;
+    #[inline] fn index(&self, index: usize) -> &real {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.w,
+            _ => panic!("Attempt to index out of range")
+        }
+    }
+}
+
+impl core::ops::IndexMut<usize> for Vec3 {
+    #[inline] fn index_mut(&mut self, index: usize) -> &mut real {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.w,
+            _ => panic!("Attempt to index out of range")
+        }
     }
 }
 
