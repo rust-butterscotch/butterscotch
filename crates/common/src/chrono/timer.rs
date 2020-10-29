@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use std::time::Instant;
+use instant::Instant;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Timer {

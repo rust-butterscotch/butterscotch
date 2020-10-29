@@ -8,5 +8,5 @@ license = "Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-winit = "0.22.2"
+winit = { version = "0.23.0", features = ["x11"], default-features = false }
 butterscotch-common = { path = "../common" }
