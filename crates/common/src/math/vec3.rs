@@ -5,6 +5,7 @@
 use super::{Vec2, real};
 
 /// Vector representing a 2D coordinate in a homogenous space
+#[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Default, PartialOrd)]
 pub struct Vec3 {
     pub x: real,

@@ -37,7 +37,7 @@ impl WindowEventLoopController for Engine {
             self.accum_update.consume();
             should_render = !self.accum_update.has_accumulated();
 
-            window.set_title(&format!(
+            window.title = Some(format!(
                 "fps: {}, tps: {}",
                 self.timer_frame.tps_average().round(),
                 self.timer_update.tps_average().round()
@@ -45,7 +45,7 @@ impl WindowEventLoopController for Engine {
         }
 
         if should_render {
-            window.mark_redraw();
+            window.redraw = true;
             self.frame_update();
         }
 
@@ -54,7 +54,7 @@ impl WindowEventLoopController for Engine {
 
             // TODO check if engine is allowed to close
 
-            window.mark_close();
+            window.close = true;
         }
     }
 

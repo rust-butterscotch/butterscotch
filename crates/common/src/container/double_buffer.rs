@@ -51,7 +51,7 @@ impl<T> DoubleBuffer<T> {
         std::mem::swap(&mut self.0, buffer);
     }
 
-    #[inline] pub fn len(&mut self) -> usize {
+    #[inline] pub fn len(&self) -> usize {
         self.0.len()
     }
 }

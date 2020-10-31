@@ -10,6 +10,7 @@ use super::{Vec3, real};
 }
 
 /// Vector representing a 2D coordinate in cartesian space
+#[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Default, PartialOrd)]
 pub struct Vec2{
     pub x: real,

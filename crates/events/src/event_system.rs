@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch_common::{container::DoubleBuffer, unlikely};
+use butterscotch_common::{container::DoubleBuffer, interop, unlikely};
 
 #[derive(Debug)]
 pub struct EventSystem<Event> {
@@ -16,7 +16,6 @@ impl<Event> Default for EventSystem<Event> {
 }
 
 impl<Event> EventSystem<Event> {
-
     pub fn new() -> Self {
         Self{
             processing: false,
@@ -24,17 +23,26 @@ impl<Event> EventSystem<Event> {
             interrupts: DoubleBuffer::default(),
         }
     }
+}
 
-    pub fn broadcast(&mut self, event: Event) {
+impl<Event> interop::EventSystem<Event> for EventSystem<Event> {
+    fn broadcast(&mut self, event: Event) {
         self.broadcasts.push(event);
     }
 
-    pub fn interrupt(&mut self, event: Event) {
+    fn interrupt(&mut self, event: Event) {
         if unlikely!(!self.processing) { panic!("Cannot interrupt when there are no events being processed."); }
         self.interrupts.push(event);
     }
 
-    pub fn process(&mut self, router: &mut impl FnMut(&mut EventSystem<Event>, &Event)) {
+    fn enqueue(&mut self, event: Event) {
+        match self.is_processing() {
+            true  => self.interrupt(event),
+            false => self.broadcast(event),
+        }
+    }
+
+    fn process(&mut self, router: &mut impl FnMut(&mut Self, &Event)) {
         // Reentrancy disallowed
         if unlikely!(std::mem::replace(&mut self.processing, true)) {
             panic!("Cannot process events whilst already processing events.");
@@ -62,7 +70,11 @@ impl<Event> EventSystem<Event> {
         self.processing = false;
     }
 
-    pub fn is_processing(&self) -> bool {
+    fn len(&self) -> usize {
+        self.broadcasts.len()
+    }
+
+    fn is_processing(&self) -> bool {
         self.processing
     }
 }

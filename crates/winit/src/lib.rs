@@ -2,11 +2,29 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch_common::chrono::{Timer};
+use butterscotch_common::{interop, chrono::{Timer}};
 use winit::{event::{Event, WindowEvent}, event_loop::{ControlFlow, EventLoop}, window::WindowBuilder};
 
 #[cfg(target_arch = "wasm32")]
 use web_sys::HtmlCanvasElement;
+
+
+
+pub struct WindowController {
+    pub title: Option<String>,
+    pub close: bool,
+    pub redraw: bool,
+}
+
+impl Default for WindowController {
+    fn default() -> Self {
+        Self{
+            title: None,
+            close: false,
+            redraw: false,
+        }
+    }
+}
 
 pub trait WindowEventLoopController {
     fn init  (&mut self, window: &mut WindowController);
@@ -19,44 +37,15 @@ pub trait WindowEventLoopController {
     fn get_wasm_web_canvas(&self) -> Option<HtmlCanvasElement>;
 }
 
-pub struct WindowController {
-    pub(crate) title: Option<String>,
-    pub(crate) close: bool,
-    pub(crate) redraw: bool,
-}
+pub fn run_event_loop<EventLoopController: 'static + WindowEventLoopController>(mut controller: EventLoopController) -> ! {
 
-impl WindowController {
-    pub fn new() -> WindowController {
-        WindowController{
-            title: None,
-            close: false,
-            redraw: false,
-        }
-    }
-
-    pub fn set_title(&mut self, title: &str) {
-        self.title = Some(title.to_owned());
-    }
-
-    pub fn mark_close(&mut self) {
-        self.close = true;
-    }
-
-    pub fn mark_redraw(&mut self) {
-        self.redraw = true;
-    }
-}
-
-pub fn run_event_loop<T: WindowEventLoopController + 'static>(mut controller: T) -> ! {
     let event_loop = EventLoop::new();
     let window = {
-        #[cfg(target_arch = "wasm32")]
-        {
+        #[cfg(target_arch = "wasm32")] {
             use winit::platform::web::WindowBuilderExtWebSys;
             WindowBuilder::new().with_canvas(controller.get_wasm_web_canvas()).build(&event_loop).unwrap()
         }
-        #[cfg(not(target_arch = "wasm32"))]
-        {
+        #[cfg(not(target_arch = "wasm32"))] {
             WindowBuilder::new().build(&event_loop).unwrap()
         }
     };
@@ -68,7 +57,7 @@ pub fn run_event_loop<T: WindowEventLoopController + 'static>(mut controller: T)
     let     title_min_time = 1.0/60.0;
 
     event_loop.run(move |event, _, control_flow| {
-        let mut window_controller = WindowController::new();
+        let mut window_controller = WindowController::default();
 
         if !init {
             init = true;
@@ -76,10 +65,14 @@ pub fn run_event_loop<T: WindowEventLoopController + 'static>(mut controller: T)
         }
 
         match event {
-            Event::MainEventsCleared  => controller.update(&mut window_controller),
-            Event::RedrawRequested(_) => controller.render(&mut window_controller),
+            Event::MainEventsCleared  => {
+                controller.update(&mut window_controller);
+            },
+            Event::RedrawRequested(_) => {
+                controller.render(&mut window_controller);
+            },
             Event::WindowEvent {event: WindowEvent::CloseRequested, ..} => {
-                controller.close(&mut window_controller)
+                controller.close(&mut window_controller);
             },
             _ => ()
         }
@@ -103,7 +96,7 @@ pub fn run_event_loop<T: WindowEventLoopController + 'static>(mut controller: T)
             *control_flow = ControlFlow::Exit;
             controller.quit();
         } else {
-            *control_flow = ControlFlow::Poll
+            *control_flow = ControlFlow::Poll;
         };
     });
 }
