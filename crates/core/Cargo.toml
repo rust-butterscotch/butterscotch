@@ -5,8 +5,15 @@ authors = ["Michael Baker <butterscotch@notvery.moe>"]
 edition = "2018"
 license = "Apache-2.0"
 
+[features]
+default = []
+web     = [
+    "butterscotch-common/web",
+    "butterscotch-winit/web",
+]
+
 [dependencies]
-static_assertions = "1.1.0"
+static_assertions = "1.1"
 
 butterscotch-common = { path = "../common" }
 butterscotch-ecs    = { path = "../ecs" }

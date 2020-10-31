@@ -4,6 +4,9 @@
 
 use butterscotch::{WindowController, WindowEventLoopController, chrono::{Accumulator, TimerSmooth}};
 
+#[cfg(target_arch = "wasm32")]
+use web_sys::HtmlCanvasElement;
+
 const SAMPLE_WINDOW: usize = 10;
 
 pub struct Engine {
@@ -67,6 +70,13 @@ impl WindowEventLoopController for Engine {
 
     fn close(&mut self, _window: &mut WindowController) {
         self.request_close = true;
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn get_wasm_web_canvas(&self) -> Option<HtmlCanvasElement> {
+        use web_sys::window;
+        use wasm_bindgen::JsCast;
+        window().unwrap().document().unwrap().get_element_by_id("game_canvas").unwrap().dyn_into::<HtmlCanvasElement>().ok()
     }
 }
 

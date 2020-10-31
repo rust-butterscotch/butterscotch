@@ -5,8 +5,17 @@ authors = ["Michael Baker <butterscotch@notvery.moe>"]
 edition = "2018"
 license = "Apache-2.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = [
+    "winit/x11"
+]
+web = [
+    "web-sys",
+    "butterscotch-common/web",
+    "winit/web-sys"
+]
 
 [dependencies]
-winit = { version = "0.23.0", features = ["x11"], default-features = false }
+winit = { version = "0.23", default-features = false }
 butterscotch-common = { path = "../common" }
+web-sys = { version = "0.3", optional = true }
