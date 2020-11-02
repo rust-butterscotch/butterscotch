@@ -13,21 +13,6 @@ pub struct Vec3 {
     pub w: real,
 }
 
-/// Constructs a vec2d through shorthand.
-#[macro_export] macro_rules! vec3 {
-    ($x:expr, $y:expr, $w:expr) => { crate::math::Vec3{x: $x, y: $y, w: $w} };
-}
-
-/// Constructs a vec2d through shorthand with `w` = 1.0
-#[macro_export] macro_rules! pnt2d {
-    ($x:expr, $y:expr) => { crate::math::Vec3{x: $x, y: $y, w: 1.0} };
-}
-
-/// Constructs a vec2d through shorthand with `w` = 0.0
-#[macro_export] macro_rules! dir2d {
-    ($x:expr, $y:expr) => { crate::math::Vec3{x: $x, y: $y, w: 0.0} };
-}
-
 impl Vec3 {
     /// Vector with all components set to 0
     pub const ZERO: Self = Self{x: 0.0, y: 0.0, w: 0.0};

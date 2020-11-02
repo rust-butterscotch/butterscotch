@@ -11,37 +11,37 @@ pub struct Mat3([Vec3; 3]);
 impl Mat3 {
     /// Matrix with all elements set to 0
     pub const ZERO: Mat3 = Mat3([
-        vec3!(0.0, 0.0, 0.0),
-        vec3!(0.0, 0.0, 0.0),
-        vec3!(0.0, 0.0, 0.0),
+        Vec3{x:  0.0, y:  0.0, w:  0.0},
+        Vec3{x:  0.0, y:  0.0, w:  0.0},
+        Vec3{x:  0.0, y:  0.0, w:  0.0},
     ]);
 
     /// Diagonal matrix of 1.0, applies no transformations
     pub const IDENTITY: Mat3 = Mat3([
-        vec3!(1.0, 0.0, 0.0),
-        vec3!(0.0, 1.0, 0.0),
-        vec3!(0.0, 0.0, 1.0),
+        Vec3{x: 1.0, y:  0.0, w:  0.0},
+        Vec3{x: 0.0, y:  1.0, w:  0.0},
+        Vec3{x: 0.0, y:  0.0, w:  1.0},
     ]);
 
     /// Rotation matrix to rotate 90 degrees ccw
     pub const ROT_CCW_090: Mat3 = Mat3([
-        vec3!( 0.0, -1.0, 0.0),
-        vec3!( 1.0,  0.0, 0.0),
-        vec3!( 0.0,  0.0, 1.0),
+        Vec3{x:  0.0, y: -1.0, w:  0.0},
+        Vec3{x:  1.0, y:  0.0, w:  0.0},
+        Vec3{x:  0.0, y:  0.0, w:  1.0},
     ]);
 
     /// Rotation matrix to rotate 180 degrees ccw
     pub const ROT_CCW_180: Mat3 = Mat3([
-        vec3!(-1.0,  0.0, 0.0),
-        vec3!( 0.0, -1.0, 0.0),
-        vec3!( 0.0,  0.0, 1.0),
+        Vec3{x: -1.0, y:  0.0, w:  0.0},
+        Vec3{x:  0.0, y: -1.0, w:  0.0},
+        Vec3{x:  0.0, y:  0.0, w:  1.0},
     ]);
 
     /// Rotation matrix to rotate 270 degrees ccw
     pub const ROT_CCW_270: Mat3 = Mat3([
-        vec3!( 0.0,  1.0, 0.0),
-        vec3!(-1.0,  0.0, 0.0),
-        vec3!( 0.0,  0.0, 1.0),
+        Vec3{x:  0.0, y:  1.0, w:  0.0},
+        Vec3{x: -1.0, y:  0.0, w:  0.0},
+        Vec3{x:  0.0, y:  0.0, w:  1.0},
     ]);
 
 }
@@ -50,45 +50,45 @@ impl Mat3 {
     /// Constructs a matrix with the given value down the l -> r diagonal of the matrix
     #[inline] pub fn new_diagonal(v: real) -> Mat3 {
         Mat3([
-            vec3!(v,   0.0, 0.0),
-            vec3!(0.0, v,   0.0),
-            vec3!(0.0, 0.0, 1.0),
+            Vec3::new(v,   0.0, 0.0),
+            Vec3::new(0.0, v,   0.0),
+            Vec3::new(0.0, 0.0, 1.0),
         ])
     }
 
     /// Constructs a scale matrix
     #[inline] pub fn new_scale(v: Vec2) -> Mat3 {
         Mat3([
-            vec3!(v[0],  0.0, 0.0),
-            vec3!( 0.0, v[1], 0.0),
-            vec3!( 0.0,  0.0, 1.0),
+            Vec3::new(v[0],  0.0, 0.0),
+            Vec3::new( 0.0, v[1], 0.0),
+            Vec3::new( 0.0,  0.0, 1.0),
         ])
     }
 
     /// Constructs a skew matrix
     #[inline] pub fn new_skew(v: Vec2) -> Mat3 {
         Mat3([
-            vec3!( 1.0, v[0], 0.0),
-            vec3!(v[1],  1.0, 0.0),
-            vec3!( 0.0,  0.0, 1.0),
+            Vec3::new( 1.0, v[0], 0.0),
+            Vec3::new(v[1],  1.0, 0.0),
+            Vec3::new( 0.0,  0.0, 1.0),
         ])
     }
 
     /// Constructs a rotation matrix from the assumed unit-length normal
     #[inline] pub fn new_rotation_from_norm(v: Vec2) -> Mat3 {
         Mat3([
-            vec3!(v[0], -v[1], 0.0),
-            vec3!(v[1],  v[0], 0.0),
-            vec3!( 0.0,   0.0, 1.0),
+            Vec3::new(v[0], -v[1], 0.0),
+            Vec3::new(v[1],  v[0], 0.0),
+            Vec3::new( 0.0,   0.0, 1.0),
         ])
     }
 
     /// Constructs a reflection matrix from the assumed unit-length normal of 2*angle
     #[inline] pub fn new_reflection_from_dnorm(v: Vec2) -> Mat3 {
         Mat3([
-            vec3!(v[0],  v[1], 0.0),
-            vec3!(v[1], -v[0], 0.0),
-            vec3!( 0.0,   0.0, 1.0),
+            Vec3::new(v[0],  v[1], 0.0),
+            Vec3::new(v[1], -v[0], 0.0),
+            Vec3::new( 0.0,   0.0, 1.0),
         ])
     }
 }
@@ -127,9 +127,9 @@ impl Mat3 {
         match inv_det.is_finite() {
             false => None,
             true  => Some(Mat3([
-                vec3!(inv_det*m00, inv_det*m10, inv_det*m20),
-                vec3!(inv_det*m01, inv_det*m11, inv_det*m21),
-                vec3!(inv_det*m02, inv_det*m12, inv_det*m22)
+                Vec3::new(inv_det*m00, inv_det*m10, inv_det*m20),
+                Vec3::new(inv_det*m01, inv_det*m11, inv_det*m21),
+                Vec3::new(inv_det*m02, inv_det*m12, inv_det*m22)
             ]))
         }
     }
@@ -139,18 +139,18 @@ impl Mat3 {
     /// component to the negation of the translation multiplied by the
     /// inverse rotation matrix
     #[inline] pub fn inverse_fast_tr(self) -> Mat3 {
-        let pos = vec3!(-self[0].w, -self[1].w, 0.0);
+        let pos = Vec3::new(-self[0].w, -self[1].w, 0.0);
         Mat3([
-            vec3!(self[0].x, self[1].x, self.col(0).dot(pos)),
-            vec3!(self[0].y, self[1].y, self.col(1).dot(pos)),
-            vec3!(      0.0,       0.0,                  1.0),
+            Vec3::new(self[0].x, self[1].x, self.col(0).dot(pos)),
+            Vec3::new(self[0].y, self[1].y, self.col(1).dot(pos)),
+            Vec3::new(      0.0,       0.0,                  1.0),
         ])
     }
 }
 
 impl Mat3 {
     #[inline] pub fn mul_vec(self, other: Vec3) -> Vec3 {
-        vec3!(
+        Vec3::new(
             self[0].dot(other),
             self[1].dot(other),
             self[2].dot(other)
@@ -159,9 +159,9 @@ impl Mat3 {
 
     pub fn mul_mat(self, other: Mat3) -> Mat3 {
         Mat3([
-            vec3!(self[0].dot(other.col(0)), self[0].dot(other.col(1)), self[0].dot(other.col(2))),
-            vec3!(self[1].dot(other.col(0)), self[1].dot(other.col(1)), self[1].dot(other.col(2))),
-            vec3!(self[2].dot(other.col(0)), self[2].dot(other.col(1)), self[2].dot(other.col(2)))
+            Vec3::new(self[0].dot(other.col(0)), self[0].dot(other.col(1)), self[0].dot(other.col(2))),
+            Vec3::new(self[1].dot(other.col(0)), self[1].dot(other.col(1)), self[1].dot(other.col(2))),
+            Vec3::new(self[2].dot(other.col(0)), self[2].dot(other.col(1)), self[2].dot(other.col(2)))
         ])
     }
 

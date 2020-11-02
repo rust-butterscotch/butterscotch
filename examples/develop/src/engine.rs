@@ -2,10 +2,9 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch::{WindowController, WindowEventLoopController, chrono::{Accumulator, TimerSmooth}};
+use butterscotch::interop::{WindowController, WindowTitleController};
+use butterscotch::chrono::{Accumulator, TimerSmooth};
 
-#[cfg(target_arch = "wasm32")]
-use web_sys::HtmlCanvasElement;
 
 const SAMPLE_WINDOW: usize = 10;
 
@@ -18,13 +17,13 @@ pub struct Engine {
     timer_frame:  TimerSmooth<{SAMPLE_WINDOW}>,
 }
 
-impl WindowEventLoopController for Engine {
+impl Engine {
 
-    fn init(&mut self, _window: &mut WindowController) {
+    pub fn init(&mut self, _window: &dyn WindowController) {
         self.world_init();
     }
 
-    fn update(&mut self, window: &mut WindowController) {
+    pub fn update(&mut self, window: &dyn WindowController) {
         self.accum_update.accumulate();
 
         let mut should_render = true;
@@ -36,47 +35,40 @@ impl WindowEventLoopController for Engine {
 
             self.accum_update.consume();
             should_render = !self.accum_update.has_accumulated();
-
-            window.title = Some(format!(
-                "fps: {}, tps: {}",
-                self.timer_frame.tps_average().round(),
-                self.timer_update.tps_average().round()
-            ));
         }
 
         if should_render {
-            window.redraw = true;
+            window.request_redraw();
             self.frame_update();
         }
 
         if self.request_close {
             self.request_close = false;
-
             // TODO check if engine is allowed to close
-
-            window.close = true;
+            // window.prevent_close();
         }
     }
 
-    fn render(&mut self, _window: &mut WindowController) {
+    pub fn render(&mut self, _window: &dyn WindowController) {
         // TODO draw frame
 
         self.timer_frame.end_start();
     }
 
-    fn quit(&mut self) {
+    pub fn quit(&mut self) {
 
     }
 
-    fn close(&mut self, _window: &mut WindowController) {
+    pub fn close(&mut self, _window: &dyn WindowController) {
         self.request_close = true;
     }
 
-    #[cfg(target_arch = "wasm32")]
-    fn get_wasm_web_canvas(&self) -> Option<HtmlCanvasElement> {
-        use web_sys::window;
-        use wasm_bindgen::JsCast;
-        window().unwrap().document().unwrap().get_element_by_id("game_canvas").unwrap().dyn_into::<HtmlCanvasElement>().ok()
+    pub fn update_title(&mut self, window: &dyn WindowTitleController) {
+        window.set_title(&format!(
+            "fps: {}, tps: {}",
+            self.timer_frame.tps_average().round(),
+            self.timer_update.tps_average().round()
+        ));
     }
 }
 

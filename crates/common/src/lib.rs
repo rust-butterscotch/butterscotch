@@ -11,8 +11,10 @@
 
 #[macro_use] extern crate static_assertions;
 
-pub mod container;
+#[macro_use] pub mod util;
+
 pub mod math;
+pub mod container;
+pub mod dpi;
 pub mod chrono;
-pub mod util;
 pub mod interop;

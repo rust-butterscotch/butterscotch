@@ -4,11 +4,6 @@
 
 use super::{Vec3, real};
 
-/// Constructs a vec2 through shorthand.
-#[macro_export] macro_rules! vec2 {
-    ($x: expr, $y: expr) => { crate::math::Vec2{x: $x, y: $y} }
-}
-
 /// Vector representing a 2D coordinate in cartesian space
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Default, PartialOrd)]
