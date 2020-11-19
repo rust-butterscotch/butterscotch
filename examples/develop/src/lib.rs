@@ -1,29 +1,21 @@
-#[cfg(target_arch = "wasm32")]
+cfg_if::cfg_if!{if #[cfg(target_arch = "wasm32")] {
+
 mod engine;
 
-#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+use web_sys::HtmlCanvasElement;
 use butterscotch::{EventSystem, interop::WindowEvent, WindowSettings, run_event_loop};
-
-#[cfg(target_arch = "wasm32")]
 use engine::*;
 
-#[cfg(target_arch = "wasm32")]
 enum GameEvent {
     Window(WindowEvent)
 }
 
-#[cfg(target_arch = "wasm32")]
 impl From<WindowEvent> for GameEvent {
     #[inline(always)] fn from(e: WindowEvent) -> Self { GameEvent::Window(e) }
 }
 
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
 
-#[cfg(target_arch = "wasm32")]
-use web_sys::HtmlCanvasElement;
-
-#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub fn main() {
     let event_system = EventSystem::<GameEvent>::new();
@@ -35,24 +27,16 @@ pub fn main() {
         window().unwrap().document().unwrap().get_element_by_id("game_canvas").unwrap().dyn_into::<HtmlCanvasElement>().unwrap()
     }), event_system, move |_, event| {
         match event {
-            GameEvent::Window(WindowEvent::Init(controller)) => {
-                engine.init(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Update(controller)) => {
-                engine.update(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Redraw(controller)) => {
-                engine.render(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Close(controller)) => {
-                engine.close(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Quit) => {
-                engine.quit();
-            },
-            GameEvent::Window(WindowEvent::TitleSync(controller)) => {
-                engine.update_title(controller.as_ref());
+            GameEvent::Window(event) => match event {
+                WindowEvent::Init(controller)      => { engine.init(controller.as_ref()); },
+                WindowEvent::Update(controller)    => { engine.update(controller.as_ref()); },
+                WindowEvent::Redraw(controller)    => { engine.render(controller.as_ref()); },
+                WindowEvent::Close(controller)     => { engine.close(controller.as_ref()); },
+                WindowEvent::TitleSync(controller) => { engine.update_title(controller.as_ref()); },
+                WindowEvent::Quit                  => { engine.quit(); },
             }
         }
     });
 }
+
+}}

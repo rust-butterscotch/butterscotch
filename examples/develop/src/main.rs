@@ -17,23 +17,13 @@ fn main() {
 
     run_event_loop(WindowSettings::default(), event_system, move |_, event| {
         match event {
-            GameEvent::Window(WindowEvent::Init(controller)) => {
-                engine.init(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Update(controller)) => {
-                engine.update(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Redraw(controller)) => {
-                engine.render(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Close(controller)) => {
-                engine.close(controller.as_ref());
-            },
-            GameEvent::Window(WindowEvent::Quit) => {
-                engine.quit();
-            },
-            GameEvent::Window(WindowEvent::TitleSync(controller)) => {
-                engine.update_title(controller.as_ref());
+            GameEvent::Window(event) => match event {
+                WindowEvent::Init(controller)      => { engine.init(controller.as_ref()); },
+                WindowEvent::Update(controller)    => { engine.update(controller.as_ref()); },
+                WindowEvent::Redraw(controller)    => { engine.render(controller.as_ref()); },
+                WindowEvent::Close(controller)     => { engine.close(controller.as_ref()); },
+                WindowEvent::TitleSync(controller) => { engine.update_title(controller.as_ref()); },
+                WindowEvent::Quit                  => { engine.quit(); },
             }
         }
     });

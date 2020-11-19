@@ -13,3 +13,4 @@ web     = [
 [dependencies]
 instant = "0.1"
 static_assertions = "1.1"
+raw-window-handle = "0.3"

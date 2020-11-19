@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use crate::dpi::Pixels;
 
-pub trait WindowController {
+pub trait WindowController : raw_window_handle::HasRawWindowHandle {
     fn request_redraw(&self);
 
     fn request_close(&self);

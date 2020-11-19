@@ -42,11 +42,11 @@ impl Engine {
             self.frame_update();
         }
 
-        if self.request_close {
-            self.request_close = false;
-            // TODO check if engine is allowed to close
-            // window.prevent_close();
-        }
+        // TODO check if engine is allowed to close
+        // if self.request_close {
+        //     self.request_close = false;
+        //     window.prevent_close();
+        // }
     }
 
     pub fn render(&mut self, _window: &dyn WindowController) {

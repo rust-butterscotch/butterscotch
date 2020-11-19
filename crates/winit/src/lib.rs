@@ -63,6 +63,12 @@ impl EngineWindowController for WindowController {
     }
 }
 
+unsafe impl raw_window_handle::HasRawWindowHandle for WindowController {
+    fn raw_window_handle(&self) -> raw_window_handle::RawWindowHandle {
+        self.window.raw_window_handle()
+    }
+}
+
 impl EngineWindowTitleController for WindowController {
     fn set_title(&self, str: &str) {
         self.window.set_title(str);
@@ -100,20 +106,19 @@ impl WindowSettings {
 
 pub fn run_event_loop<EngineEvent: From<EngineWindowEvent>, EngineEventSystem: 'static + EventSystem<EngineEvent>, EngineEventHandler: 'static + FnMut(&mut EngineEventSystem, &EngineEvent)>(settings: WindowSettings, mut event_system: EngineEventSystem, mut router: EngineEventHandler) -> ! {
     let event_loop = EventLoop::new();
-    let controller = Rc::new(WindowController::new({
-        #[cfg(target_arch = "wasm32")] {
+    let controller = Rc::new(WindowController::new({cfg_if::cfg_if!{
+        if #[cfg(target_arch = "wasm32")] {
             use winit::platform::web::WindowBuilderExtWebSys;
             WindowBuilder::new()
-                .with_title(settings.title.unwrap_or("Butterscotch".to_owned()))
+                .with_title(settings.title.unwrap_or_else(|| "Butterscotch".to_owned()))
                 .with_canvas(settings.canvas) // TODO make compile error
             .build(&event_loop).unwrap()
-        }
-        #[cfg(not(target_arch = "wasm32"))] {
+        } else {
             WindowBuilder::new()
-                .with_title(settings.title.unwrap_or("Butterscotch".to_owned()))
+                .with_title(settings.title.unwrap_or_else(|| "Butterscotch".to_owned()))
             .build(&event_loop).unwrap()
         }
-    }));
+    }}));
 
     let mut init = false;
     let mut title_timer = Timer::new();

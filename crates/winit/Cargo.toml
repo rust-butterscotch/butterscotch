@@ -16,6 +16,8 @@ web = [
 ]
 
 [dependencies]
+cfg-if = "1.0"
 winit = { version = "0.23", default-features = false }
 butterscotch-common = { path = "../common" }
 web-sys = { version = "0.3", optional = true }
+raw-window-handle = "0.3"

@@ -1,0 +1,10 @@
+[package]
+name = "butterscotch-render"
+version = "0.1.0"
+authors = ["Michael Baker <github@notvery.moe>"]
+edition = "2018"
+
+[dependencies]
+butterscotch-common = { path = "../common" }
+wgpu = "0.6"
+raw-window-handle = "0.3"
