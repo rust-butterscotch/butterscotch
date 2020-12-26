@@ -2,13 +2,14 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch_common::{container::DoubleBuffer, interop, unlikely};
+use std::{cell::{Cell, RefCell}, future::Future};
+use butterscotch_common::{container::DoubleBuffer, future::IncrementalLocalExecutor, interop, unlikely};
 
-#[derive(Debug)]
 pub struct EventSystem<Event> {
-    processing: bool,
-    broadcasts: DoubleBuffer<Event>,
-    interrupts: DoubleBuffer<Event>,
+    processing: Cell<bool>,
+    broadcasts: RefCell<DoubleBuffer<Event>>,
+    interrupts: RefCell<DoubleBuffer<Event>>,
+    spawned: IncrementalLocalExecutor<Option<Event>>,
 }
 
 impl<Event> Default for EventSystem<Event> {
@@ -18,63 +19,71 @@ impl<Event> Default for EventSystem<Event> {
 impl<Event> EventSystem<Event> {
     pub fn new() -> Self {
         Self{
-            processing: false,
-            broadcasts: DoubleBuffer::default(),
-            interrupts: DoubleBuffer::default(),
+            processing: Cell::new(false),
+            broadcasts: RefCell::new(DoubleBuffer::default()),
+            interrupts: RefCell::new(DoubleBuffer::default()),
+            spawned:    IncrementalLocalExecutor::new(100),
         }
     }
 }
 
+impl<Event> EventSystem<Event> {
+    fn is_processing(&self) -> bool {
+        self.processing.get()
+    }
+}
+
 impl<Event> interop::EventSystem<Event> for EventSystem<Event> {
-    fn broadcast(&mut self, event: Event) {
-        self.broadcasts.push(event);
+
+    fn broadcast_async(&self, task: impl Future<Output = Option<Event>> + 'static) {
+        self.spawned.spawn(task, false);
     }
 
-    fn interrupt(&mut self, event: Event) {
-        if unlikely!(!self.processing) { panic!("Cannot interrupt when there are no events being processed."); }
-        self.interrupts.push(event);
+    fn broadcast(&self, event: Event) {
+        self.broadcasts.borrow_mut().push(event);
     }
 
-    fn enqueue(&mut self, event: Event) {
+    fn interrupt(&self, event: Event) {
+        if unlikely!(!self.is_processing()) { panic!("Cannot interrupt when there are no events being processed."); }
+        self.interrupts.borrow_mut().push(event);
+    }
+
+    fn enqueue(&self, event: Event) {
         match self.is_processing() {
             true  => self.interrupt(event),
             false => self.broadcast(event),
         }
     }
 
-    fn process(&mut self, router: &mut impl FnMut(&mut Self, &Event)) {
+    fn process(&self, router: &mut impl FnMut(&Self, &Event)) {
         // Reentrancy disallowed
-        if unlikely!(std::mem::replace(&mut self.processing, true)) {
+        if unlikely!(self.processing.replace(true)) {
             panic!("Cannot process events whilst already processing events.");
         }
 
-        let broadcasts = self.broadcasts.expect_take();
+        self.spawned.run_cb(&mut |event| match event {
+            Some(e) => self.broadcast(e),
+            None    => {}
+        });
+
+        let broadcasts = self.broadcasts.borrow_mut().expect_take();
         for event in &broadcasts {
             // Process event
             router(self, event);
 
             // Process interrupts
-            if self.interrupts.len() <= 0 { continue; }
-
-            let mut interrupts = self.interrupts.expect_take();
+            if self.interrupts.borrow_mut().len() <= 0 { continue; }
+            let mut interrupts = self.interrupts.borrow_mut().expect_take();
             loop {
                 for event in &interrupts { router(self, event); }
-                self.interrupts.swap(&mut interrupts);
+                self.interrupts.borrow_mut().swap(&mut interrupts);
                 if interrupts.len() <= 0 { break; }
             }
-            self.interrupts.replace(interrupts);
+            self.interrupts.borrow_mut().replace(interrupts);
         }
-        self.broadcasts.replace(broadcasts);
+        self.broadcasts.borrow_mut().replace(broadcasts);
 
         // Allow calling the function again
-        self.processing = false;
-    }
-
-    fn len(&self) -> usize {
-        self.broadcasts.len()
-    }
-
-    fn is_processing(&self) -> bool {
-        self.processing
+        self.processing.set(false);
     }
 }

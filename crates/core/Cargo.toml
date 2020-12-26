@@ -19,3 +19,4 @@ butterscotch-common = { path = "../common" }
 butterscotch-ecs    = { path = "../ecs" }
 butterscotch-events = { path = "../events" }
 butterscotch-winit  = { path = "../winit" }
+butterscotch-render  = { path = "../render" }

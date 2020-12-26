@@ -18,3 +18,4 @@ pub mod container;
 pub mod dpi;
 pub mod chrono;
 pub mod interop;
+pub mod future;

@@ -4,6 +4,7 @@
 
 #![feature(core_intrinsics)]
 #![feature(unboxed_closures)]
+#![feature(box_syntax)]
 
 mod event_system;
 

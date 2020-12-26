@@ -2,13 +2,14 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
+use std::future::Future;
+
 pub trait EventSystem<Event> {
-    fn broadcast(&mut self, event: Event);
-    fn interrupt(&mut self, event: Event);
-    fn enqueue(&mut self, event: Event);
-    fn process(&mut self, router: &mut impl FnMut(&mut Self, &Event));
-    fn len(&self) -> usize;
-    fn is_processing(&self) -> bool;
+    fn broadcast_async(&self, task: impl Future<Output = Option<Event>> + 'static);
+    fn broadcast(&self, event: Event);
+    fn interrupt(&self, event: Event);
+    fn enqueue(&self, event: Event);
+    fn process(&self, router: &mut impl FnMut(&Self, &Event));
 }
 
 #[repr(transparent)]
