@@ -14,7 +14,7 @@ pub use window_controller::*;
 pub use event::*;
 
 use winit::{event::Event, event_loop::{ControlFlow, EventLoop}, window::WindowBuilder};
-use butterscotch_common::{chrono::{Timer}, unlikely};
+use butterscotch_common::chrono::Timer;
 
 #[cfg(target_arch = "wasm32")]
 use web_sys::HtmlCanvasElement;
@@ -55,19 +55,13 @@ pub fn open_window<F: 'static + FnMut(WindowEvent)>(settings: WindowSettings, mu
         }
     }});
 
-    let mut init = false;
     let mut title_timer = Timer::new();
     let     title_min_time = 2.0/60.0;
 
-    //handler(WindowEvent::Open(&controller));
+    handler(WindowEvent::Open(&controller));
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
-
-        if unlikely!(!init) {
-            init = true;
-            handler(WindowEvent::Open(&controller));
-        }
 
         match event {
             Event::MainEventsCleared  => {

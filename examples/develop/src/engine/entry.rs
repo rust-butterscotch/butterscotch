@@ -2,33 +2,28 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use std::rc::Rc;
+use std::{cell::Cell, rc::Rc};
 
 #[cfg(target_arch = "wasm32")]
 use web_sys::HtmlCanvasElement;
 
-use butterscotch::{
-    event::EventSystem, 
-    window::{
+use butterscotch::{event::EventSystem, render::Renderer, window::{
         WindowEvent, 
         WindowSettings, 
         open_window
-    }
-};
+    }};
 
 use super::Engine;
 
 pub enum GameEvent {
-    
+    RendererCreated(Cell<Option<Renderer>>),
 }
 
 pub fn engine_entry() {
-    let event_system = Rc::new(EventSystem::<GameEvent>::new());
-    let mut engine   = Engine::new(event_system.clone());
-
+    let mut engine = Engine::new();
     open_window(get_base_config(), move |event| { match event {
         WindowEvent::Open(controller)     => { engine.open(controller);   },
-        WindowEvent::Update(controller)   => { event_system.process(&mut |_, _|{}); engine.update(controller); },
+        WindowEvent::Update(controller)   => { engine.update(controller); },
         WindowEvent::Redraw(controller)   => { engine.render(controller); },
         WindowEvent::Resize(controller)   => { engine.resize(controller); },
         WindowEvent::Close(controller)    => { engine.close(controller);  },

@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::{Cell, RefCell}, rc::Rc};
 
 use butterscotch::{
     event::EventSystem, 
@@ -33,8 +33,8 @@ pub struct Engine {
     timer_update: TimerSmooth<{SAMPLE_WINDOW}>,
     timer_frame:  TimerSmooth<{SAMPLE_WINDOW}>,
 
-    event_system: Rc<EventSystem<GameEvent>>,
-    renderer: Rc<RefCell<Option<Renderer>>>,
+    event_system: Cell<Option<EventSystem<GameEvent>>>,
+    renderer: Option<Renderer>,
     
     pipeline: Option<wgpu::RenderPipeline>
 }
@@ -42,7 +42,7 @@ pub struct Engine {
 impl Engine {
 
     pub fn open(&mut self, window: &WindowController) {
-        self.event_system.broadcast_async(create_renderer(self.renderer.clone(), window.get_window_handle(), window.get_size_raw()));
+        self.event_system.get_mut().as_ref().unwrap().broadcast_async_exec(create_renderer(window.get_window_handle(), window.get_size_raw()));
         self.world_init();
     }
 
@@ -51,6 +51,16 @@ impl Engine {
 
         let mut should_render = true;
         if self.accum_update.has_accumulated() {
+            {
+                // TODO this is dumb
+                let event_system = self.event_system.replace(None).unwrap();
+                event_system.process(&mut |_, event|{
+                    match event {
+                        GameEvent::RendererCreated(r) => self.on_renderer_created(r)
+                    }
+                });
+                self.event_system.replace(Some(event_system));
+            }
 
             self.engine_update(self.accum_update.dt_fixed());
 
@@ -72,10 +82,13 @@ impl Engine {
         // }
     }
 
+    pub fn on_renderer_created(&mut self, renderer: &Cell<Option<Renderer>>) {
+        self.renderer = renderer.replace(None);
+    }
+
     pub fn render(&mut self, window: &WindowController) {
         self.timer_frame.end_start();
-        let mut borrow = self.renderer.borrow_mut();
-        let renderer = match borrow.as_mut() { Some(v) => v, _ => { println!("No renderer"); return;} };
+        let renderer = match self.renderer.as_mut() { Some(v) => v, _ => { println!("No renderer"); return;} };
 
         if self.pipeline.is_none() {
             self.pipeline = Some(create_debug_pipeline(&renderer));
@@ -85,8 +98,7 @@ impl Engine {
     }
 
     pub fn resize(&mut self, window: &WindowController) {
-        let mut borrow = self.renderer.borrow_mut();
-        let renderer = match borrow.as_mut() { Some(v) => v, _ => return };
+        let renderer = match self.renderer.as_mut() { Some(v) => v, _ => { println!("No renderer"); return;} };
 
         renderer.resize(window.get_size_raw());
     }
@@ -110,14 +122,14 @@ impl Engine {
 
 impl Engine {
 
-    pub fn new(event_system: Rc<EventSystem<GameEvent>>) -> Engine {
+    pub fn new() -> Engine {
         Engine{
             accum_update: Accumulator::new(1.0/60.0, 10),
             request_close: false,
             timer_update: TimerSmooth::new(),
             timer_frame:  TimerSmooth::new(),
-            renderer: Rc::new(RefCell::new(None)),
-            event_system,
+            renderer: None,
+            event_system: Cell::new(Some(EventSystem::<GameEvent>::new())),
             pipeline: None,
         }
     }
@@ -135,9 +147,11 @@ impl Engine {
     }
 }
 
-async fn create_renderer(dest: Rc<RefCell<Option<Renderer>>>, window_handle: WindowHandle, window_size: PixelsRaw) -> Option<GameEvent> {
-    let renderer = Some(Renderer::new(window_handle, window_size).await);
-    *dest.borrow_mut() = renderer;
-    return None;
+async fn create_renderer(window_handle: WindowHandle, window_size: PixelsRaw) -> Option<GameEvent> {
+    return Some(
+        GameEvent::RendererCreated(
+            Cell::new(Some(Renderer::new(window_handle, window_size).await))
+        )
+    );
 }
 

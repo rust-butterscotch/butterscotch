@@ -11,6 +11,7 @@
 #![feature(core_intrinsics)]
 #![feature(unboxed_closures)]
 #![feature(box_syntax)]
+#![feature(negative_impls)]
 
 #[macro_use] extern crate static_assertions;
 

@@ -36,7 +36,7 @@ impl<Event> EventSystem<Event> {
 impl<Event> EventSystem<Event> {
 
     pub fn broadcast_async(&self, task: impl Future<Output = Option<Event>> + 'static) {
-        self.spawned.spawn(task, false);
+        self.spawned.spawn(task);
     }
 
     pub fn broadcast(&self, event: Event) {
