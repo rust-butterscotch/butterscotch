@@ -9,14 +9,12 @@ license = "Apache-2.0"
 default = []
 web     = [
     "butterscotch-common/web",
-    "butterscotch-winit/web",
+    "butterscotch-window/web",
 ]
 
 [dependencies]
 static_assertions = "1.1"
 
 butterscotch-common = { path = "../common" }
-butterscotch-ecs    = { path = "../ecs" }
-butterscotch-events = { path = "../events" }
-butterscotch-winit  = { path = "../winit" }
-butterscotch-render  = { path = "../render" }
+butterscotch-window = { path = "../window" }
+butterscotch-render = { path = "../render" }

@@ -3,7 +3,7 @@
 ** ************************************************************************ */
 
 use std::{cell::{Cell, RefCell}, future::Future};
-use butterscotch_common::{container::DoubleBuffer, future::IncrementalLocalExecutor, interop, unlikely};
+use crate::{container::DoubleBuffer, future::IncrementalLocalExecutor};
 
 pub struct EventSystem<Event> {
     processing: Cell<bool>,
@@ -28,34 +28,34 @@ impl<Event> EventSystem<Event> {
 }
 
 impl<Event> EventSystem<Event> {
-    fn is_processing(&self) -> bool {
+    pub fn is_processing(&self) -> bool {
         self.processing.get()
     }
 }
 
-impl<Event> interop::EventSystem<Event> for EventSystem<Event> {
+impl<Event> EventSystem<Event> {
 
-    fn broadcast_async(&self, task: impl Future<Output = Option<Event>> + 'static) {
+    pub fn broadcast_async(&self, task: impl Future<Output = Option<Event>> + 'static) {
         self.spawned.spawn(task, false);
     }
 
-    fn broadcast(&self, event: Event) {
+    pub fn broadcast(&self, event: Event) {
         self.broadcasts.borrow_mut().push(event);
     }
 
-    fn interrupt(&self, event: Event) {
+    pub fn interrupt(&self, event: Event) {
         if unlikely!(!self.is_processing()) { panic!("Cannot interrupt when there are no events being processed."); }
         self.interrupts.borrow_mut().push(event);
     }
 
-    fn enqueue(&self, event: Event) {
+    pub fn enqueue(&self, event: Event) {
         match self.is_processing() {
             true  => self.interrupt(event),
             false => self.broadcast(event),
         }
     }
 
-    fn process(&self, router: &mut impl FnMut(&Self, &Event)) {
+    pub fn process(&self, router: &mut impl FnMut(&Self, &Event)) {
         // Reentrancy disallowed
         if unlikely!(self.processing.replace(true)) {
             panic!("Cannot process events whilst already processing events.");

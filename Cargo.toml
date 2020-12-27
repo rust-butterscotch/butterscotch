@@ -1,12 +1,10 @@
 [workspace]
 
 members = [
-    "crates/core",
+    "crates/butterscotch",
     "crates/common",
-    "crates/ecs",
-    "crates/events",
     "crates/render",
-    "crates/winit",
+    "crates/window",
 
     "examples/develop",
 ]

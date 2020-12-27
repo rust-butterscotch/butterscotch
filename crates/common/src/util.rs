@@ -19,5 +19,5 @@ impl<T: Any> AnyCast for T {
 }
 
 #[macro_export] macro_rules! unlikely {
-    ($x:expr) => { unsafe { core::intrinsics::unlikely($x) } }
+    ($x:expr) => { { core::intrinsics::unlikely($x) } }
 }

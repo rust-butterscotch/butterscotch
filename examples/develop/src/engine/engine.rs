@@ -4,9 +4,22 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use butterscotch::{EventSystem, WindowController, create_debug_pipeline, dpi::PixelsRaw, interop::{EventSystem as EventSystemTrait, WindowHandle}};
-use butterscotch::chrono::{Accumulator, TimerSmooth};
-use butterscotch::Renderer;
+use butterscotch::{
+    event::EventSystem, 
+    window::{
+        WindowController
+    }, 
+    render::{
+        Renderer,
+        create_debug_pipeline
+    },
+    chrono::{
+        Accumulator, 
+        TimerSmooth
+    },
+    dpi::PixelsRaw, 
+    interop::WindowHandle
+};
 
 use super::GameEvent;
 

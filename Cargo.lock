@@ -189,10 +189,8 @@ name = "butterscotch"
 version = "0.0.1"
 dependencies = [
  "butterscotch-common",
- "butterscotch-ecs",
- "butterscotch-events",
  "butterscotch-render",
- "butterscotch-winit",
+ "butterscotch-window",
  "static_assertions",
 ]
 
@@ -207,21 +205,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "butterscotch-ecs"
-version = "0.1.0"
-dependencies = [
- "butterscotch-common",
-]
-
-[[package]]
-name = "butterscotch-events"
-version = "0.1.0"
-dependencies = [
- "butterscotch-common",
- "static_assertions",
-]
-
-[[package]]
 name = "butterscotch-render"
 version = "0.1.0"
 dependencies = [
@@ -231,7 +214,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "butterscotch-winit"
+name = "butterscotch-window"
 version = "0.1.0"
 dependencies = [
  "butterscotch-common",

@@ -18,9 +18,9 @@ shaderc = { version = "0.7", features = ["build-from-source"] }
 regex = "1.4.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-butterscotch = { path = "../../crates/core", features = ["web"]}
+butterscotch = { path = "../../crates/butterscotch", features = ["web"]}
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-butterscotch = { path = "../../crates/core" }
+butterscotch = { path = "../../crates/butterscotch" }
 web-sys = { version = "=0.3.39", features = ["Document", "Element"]}
 wasm-bindgen = "0.2"

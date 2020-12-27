@@ -1,3 +1,7 @@
+/* ************************************************************************ **
+** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
+** ************************************************************************ */
+
 // RUSTFLAGS=--cfg=web_sys_unstable_apis wasm-pack build --target=web
 cfg_if::cfg_if!{if #[cfg(target_arch = "wasm32")] {
 

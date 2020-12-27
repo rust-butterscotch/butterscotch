@@ -1,5 +1,5 @@
 [package]
-name = "butterscotch-winit"
+name = "butterscotch-window"
 version = "0.1.0"
 authors = ["Michael Baker <butterscotch@notvery.moe>"]
 edition = "2018"

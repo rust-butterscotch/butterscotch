@@ -8,6 +8,9 @@
 #![feature(const_fn)]
 #![feature(const_euclidean_int_methods)]
 #![feature(optimize_attribute)]
+#![feature(core_intrinsics)]
+#![feature(unboxed_closures)]
+#![feature(box_syntax)]
 
 #[macro_use] extern crate static_assertions;
 
@@ -19,3 +22,4 @@ pub mod dpi;
 pub mod chrono;
 pub mod interop;
 pub mod future;
+pub mod event;
