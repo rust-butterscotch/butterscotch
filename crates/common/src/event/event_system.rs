@@ -2,69 +2,55 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use std::{cell::{Cell, RefCell}, future::Future};
-use crate::{container::DoubleBuffer, future::IncrementalLocalExecutor};
+use std::{cell::{Cell, RefCell}};
+use crate::{container::DoubleBuffer, unlikely, util::UnionRef};
 
-pub struct EventSystem<Event> {
+use super::Event;
+
+pub struct EventSystem {
     processing: Cell<bool>,
-    broadcasts: RefCell<DoubleBuffer<Event>>,
-    interrupts: RefCell<DoubleBuffer<Event>>,
-    spawned: IncrementalLocalExecutor<Option<Event>>,
+    broadcasts: RefCell<DoubleBuffer<UnionRef<dyn Event>>>,
+    interrupts: RefCell<DoubleBuffer<UnionRef<dyn Event>>>,
 }
 
-impl<Event> Default for EventSystem<Event> {
+impl Default for EventSystem {
     fn default() -> Self { Self::new() }
 }
 
-impl<Event> EventSystem<Event> {
+impl EventSystem {
     pub fn new() -> Self {
         Self{
             processing: Cell::new(false),
-            broadcasts: RefCell::new(DoubleBuffer::default()),
-            interrupts: RefCell::new(DoubleBuffer::default()),
-            spawned:    IncrementalLocalExecutor::new(100),
+            broadcasts: Default::default(),
+            interrupts: Default::default(),
         }
     }
-}
-
-impl<Event> EventSystem<Event> {
+    
     pub fn is_processing(&self) -> bool {
         self.processing.get()
     }
-}
 
-impl<Event> EventSystem<Event> {
-
-    pub fn broadcast_async(&self, task: impl Future<Output = Option<Event>> + 'static) {
-        self.spawned.spawn(task);
-    }
-
-    pub fn broadcast(&self, event: Event) {
+    pub fn broadcast(&self, event: UnionRef<dyn Event>) {
         self.broadcasts.borrow_mut().push(event);
     }
 
-    pub fn interrupt(&self, event: Event) {
+    pub fn interrupt(&self, event: UnionRef<dyn Event>) {
         if unlikely!(!self.is_processing()) { panic!("Cannot interrupt when there are no events being processed."); }
         self.interrupts.borrow_mut().push(event);
     }
 
-    pub fn enqueue(&self, event: Event) {
+    pub fn enqueue(&self, event: UnionRef<dyn Event>) {
         match self.is_processing() {
             true  => self.interrupt(event),
             false => self.broadcast(event),
         }
     }
 
-    pub fn process(&self, router: &mut impl FnMut(&Self, &Event)) {
+    pub fn process(&self, router: &mut impl FnMut(&Self, &UnionRef<dyn Event>)) {
         // Reentrancy disallowed
         if unlikely!(self.processing.replace(true)) {
             panic!("Cannot process events whilst already processing events.");
         }
-
-        self.spawned.run_cb(&mut |event| match event {
-            Some(e) => self.broadcast(e),
-            None    => {}
-        });
 
         let broadcasts = self.broadcasts.borrow_mut().expect_take();
         for event in &broadcasts {

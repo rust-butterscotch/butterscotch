@@ -2,7 +2,6 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-#![feature(min_const_generics)]
 #![feature(unchecked_math)]
 #![feature(const_panic)]
 #![feature(const_fn)]
@@ -12,6 +11,13 @@
 #![feature(unboxed_closures)]
 #![feature(box_syntax)]
 #![feature(negative_impls)]
+#![feature(allocator_api)]
+#![feature(dropck_eyepatch)]
+#![feature(arc_new_cyclic)]
+#![feature(raw_ref_op)]
+#![feature(coerce_unsized)]
+#![feature(unsize)]
+#![feature(dispatch_from_dyn)]
 
 #[macro_use] extern crate static_assertions;
 

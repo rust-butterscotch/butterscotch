@@ -7,11 +7,18 @@ use std::collections::VecDeque;
 
 const RESERVE_BLOCK_SIZE: usize = 128;
 
+#[derive(Debug)]
 pub struct SlotMap<T> {
     lookup: Vec<GID>,
     data:   Vec<T>,
     indices: Vec<usize>,
     freelist: VecDeque<GID>,
+}
+
+impl<T> Default for SlotMap<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T> SlotMap<T> {

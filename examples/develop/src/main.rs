@@ -1,6 +1,9 @@
-mod engine;
+#![feature(async_closure)]
+#![feature(box_syntax)]
 
-use engine::engine_entry;
+mod entry;
+
+use entry::engine_entry;
 
 fn main() {
     engine_entry();

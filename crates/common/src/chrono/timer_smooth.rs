@@ -18,6 +18,10 @@ pub struct TimerSmooth<const SAMPLE_COUNT: usize> {
     cache: Cell<u64>,
 }
 
+impl<const SAMPLE_COUNT: usize> Default for TimerSmooth<SAMPLE_COUNT> {
+    fn default() -> Self { Self::new() }
+}
+
 impl<const SAMPLE_COUNT: usize> TimerSmooth<SAMPLE_COUNT> {
 
     pub fn new() -> Self {

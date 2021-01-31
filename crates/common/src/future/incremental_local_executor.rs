@@ -7,113 +7,88 @@ use futures::{
     task::{waker_ref, ArcWake},
 };
 
-use std::{cell::{RefCell, UnsafeCell}, future::Future, sync::atomic::{AtomicBool, Ordering}, sync::{Arc}, task::{Context, Poll}, thread::ThreadId};
+use std::{cell::UnsafeCell, future::Future, sync::atomic::{AtomicBool, Ordering}, sync::{Arc, Mutex}, task::{Context, Poll}, thread::ThreadId};
 
 use crate::container::DoubleBuffer;
 
 /// Task executor that runs futures created on the same thread as it.
 /// This means that the futures do not need to be send/sync...
-/// But, for this reason, the executor is can't be send or sync.
-/// Debug checks are in-place to detect foul-play.
+/// But, for this reason, the executor can only run on a single thread.
+/// We can recieve "Send" futures from other threads, as well as wakes.
 pub struct IncrementalLocalExecutor<T>  {
-    #[cfg(debug_assertions)] thread_id: ThreadId,
-    retries: u32,
+    thread_id: ThreadId,
     running: AtomicBool,
-    // TODO
-    //  Change to slotmap, add "awake" list that references entries in the slotmap.
-    //   + Reduces the amount of Arc copies/moves/drops
-    //   + Allows us retain ordering whilst skipping over sleeping tasks entirely
-    //   ~ Cache-coherency is probbably worse under this, but we weren't getting much of that anyway
-    //   - Slotmap might not have a tidy performance overhead on these? 
-    //   - Higher memory usage
-    queue: RefCell<DoubleBuffer<Arc<LocalTask<T>>>>,
+    // TODO This isn't super flexible... 
+    // Can't support getting/storing references to a future
+    // Lots of locking/unlocking currrently
+    queue: Mutex<DoubleBuffer<Arc<LocalTask<T>>>>,
 }
 
-impl<T> !Send for IncrementalLocalExecutor<T> {}
-impl<T> !Sync for IncrementalLocalExecutor<T> {}
+impl<T> Default for IncrementalLocalExecutor<T> {
+    fn default() -> Self { Self::new() }
+}
 
 impl<T> IncrementalLocalExecutor<T> {
-    pub fn new(retries: u32) -> IncrementalLocalExecutor<T> {
+    pub fn new() -> IncrementalLocalExecutor<T> {
         IncrementalLocalExecutor { 
-            #[cfg(debug_assertions)] thread_id: std::thread::current().id(),
+            thread_id: std::thread::current().id(),
             running: false.into(), 
-            queue: RefCell::default(),
-            retries,
+            queue: Mutex::default(),
         }
     }
 
-    pub fn spawn(&self, future: impl Future<Output = T> + 'static) {
-        self.assert_singlethread();
-
-        let future = future.boxed_local();
-        let task = Arc::new(LocalTask {
-            future: UnsafeCell::new(future),
-            awake: true.into(),
-        });
-
-        self.queue.borrow_mut().push(task);
+    pub fn defer(&self, future: impl Future<Output = T> + Send + 'static) {
+        self.spawn(future);
     }
 
-    pub fn run(&self) {
-        self.run_cb(&mut |_|{})
-    }
-    
-    pub fn run_cb<F: FnMut(T)>(&self, callback: &mut F) {
+    pub fn exec(&self, future: impl Future<Output = T> + 'static) {
         self.assert_singlethread();
+        self.spawn(future);
+    }
 
+    pub fn proccess<F: FnMut(T)>(&self, callback: &mut F) {
+        self.assert_singlethread();
         if self.running.swap(true, Ordering::SeqCst) { panic!("Executor already running"); }
 
         // Buffer current tasks
-        let tasks = self.queue.borrow_mut().expect_take();
+        let tasks = self.queue.lock().unwrap().expect_take();
         for task in tasks.iter() {
             // Put task to sleep so that it can be woken after polling
             // If it was already asleep, skip polling
             if !task.awake.swap(false, Ordering::Acquire) { // Double-check this
-                self.queue.borrow_mut().push(task.clone());
+                self.queue.lock().unwrap().push(task.clone());
                 continue;
             }
 
-            self.run_task(task, callback);
+            let future = unsafe { &mut *task.future.get() };
+            let waker = waker_ref(&task);
+            let context = &mut Context::from_waker(&*waker);
+            match future.as_mut().poll(context) {
+                Poll::Pending  => self.queue.lock().unwrap().push(task.clone()),
+                Poll::Ready(v) => callback(v),
+            }
         }
-        self.queue.borrow_mut().replace(tasks);
-
+        self.queue.lock().unwrap().replace(tasks);
         self.running.store(false, Ordering::SeqCst);
     }
 }
 
 impl<T> IncrementalLocalExecutor<T> {
-
-    fn run_task<F: FnMut(T)>(&self, task: &Arc<LocalTask<T>>, callback: &mut F) {
-        self.assert_singlethread();
-
-        let future = unsafe { &mut *task.future.get() };
-        let waker = waker_ref(&task);
-        let context = &mut Context::from_waker(&*waker);
-
-        let mut attempts = 0;
-        loop {
-            attempts += 1;
-            match future.as_mut().poll(context) {
-                Poll::Ready(v) => { callback(v); break; }
-                Poll::Pending => if (attempts > self.retries) || !task.awake.swap(false, Ordering::Acquire) {
-                    // If we woke straight back up after polling, then try again, unless we exceed our retries 
-                    // Then requeue the task
-                    self.queue.borrow_mut().push(task.clone());
-                    break;
-                },
-            }
-        }
+    fn spawn(&self, future: impl Future<Output = T> + 'static) {
+        let future = future.boxed_local();
+        let task = Arc::new(LocalTask {
+            future: UnsafeCell::new(future),
+            awake: true.into(),
+        });
+        self.queue.lock().unwrap().push(task);
     }
 
-    #[cfg(debug_assertions)] 
     #[inline(always)] fn assert_singlethread(&self) {
-        assert_eq!(self.thread_id, std::thread::current().id(), "Executor can only spawn and process tasks the thread it was created in (Wake is fine for MT/Intterupt)");
+        assert_eq!(
+            self.thread_id, std::thread::current().id(), 
+            "IncrementalLocalExecutor can only process tasks on the same thread it was created on."
+        );
     }
-
-    #[cfg(not(debug_assertions))]
-    #[inline(always)] fn assert_singlethread(&self) {}
-
-
 }
 
 unsafe impl<T> Send for LocalTask<T> {}
