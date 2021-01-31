@@ -1,0 +1,18 @@
+[package]
+name = "butterscotch-ecs"
+version = "0.0.1"
+authors = ["Michael Baker <butterscotch@notvery.moe>"]
+edition = "2018"
+license = "Apache-2.0"
+
+[lib]
+path="./lib.rs"
+
+[build-dependencies]
+butterscotch-codegen    = { path = "../codegen"    }
+
+[dependencies]
+butterscotch-common    = { path = "../common"    }
+arrayvec = { version = "0.5.2", feature = ["unstable-const-fn"] }
+tuple_list = "0.1.2"
+mashup = "0.1"

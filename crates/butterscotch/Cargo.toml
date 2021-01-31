@@ -1,0 +1,15 @@
+[package]
+name = "butterscotch"
+version = "0.0.1"
+authors = ["Michael Baker <butterscotch@notvery.moe>"]
+edition = "2018"
+license = "Apache-2.0"
+
+[lib]
+path="./lib.rs"
+
+[dependencies]
+butterscotch-common = { path = "../common" }
+butterscotch-core   = { path = "../core"   }
+butterscotch-ecs    = { path = "../ecs"    }
+butterscotch-render = { path = "../render" }

@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+    "crates/butterscotch",
+    "crates/codegen",
+    "crates/common",
+    "crates/core",
+    "crates/ecs",
+    "crates/render",
+    "crates/test",
+]

@@ -1,0 +1,13 @@
+[package]
+name = "butterscotch-codegen"
+version = "0.0.1"
+authors = ["Michael Baker <butterscotch@notvery.moe>"]
+edition = "2018"
+license = "Apache-2.0"
+
+[lib]
+path="./lib.rs"
+
+[dependencies]
+regex = "1"
+lazy_static = "1.4.0"
