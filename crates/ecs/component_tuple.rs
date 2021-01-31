@@ -2,12 +2,15 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use crate::{ECS, EntityID};
+use arrayvec::ArrayVec;
+
+use crate::{ComponentID, ECS, EntityID};
 
 // // Storage types // //
 
 pub trait ReqRefComponents<'a> {
     fn retrieve(ecs: &'a ECS, eid: EntityID) -> Option<Self> where Self: Sized;
+    fn ids() -> ArrayVec<[ComponentID; 8]>;
 }
 
 pub trait OptRefComponents<'a> {
@@ -43,6 +46,7 @@ impl<'a, T: ReqRefComponentsDefinition<'a>> ComponentRequestTupleDefinition<'a> 
 
 impl<'a> ReqRefComponents<'a> for () {
     fn retrieve(_ecs: &'a ECS, _eid: EntityID) -> Option<Self> where Self: Sized { Some(()) }
+    fn ids() -> ArrayVec<[ComponentID; 8]> { Default::default() }
 }
 
 impl<'a> OptRefComponents<'a> for () {

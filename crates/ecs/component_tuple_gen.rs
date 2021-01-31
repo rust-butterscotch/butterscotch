@@ -3,7 +3,10 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** *      GENERATED FILE, DO NOT EDIT, IT WILL BE REGENERATED ON BUILD    * **
 ** ************************************************************************ */
-use crate::{Component, ECS, EntityID, ReqRefComponents, OptRefComponents, ReqRefComponentsDefinition, OptRefComponentsDefinition};
+
+use crate::{Component, ComponentID, ECS, EntityID, ReqRefComponents, OptRefComponents, ReqRefComponentsDefinition, OptRefComponentsDefinition};
+use arrayvec::ArrayVec;
+
 // // ReqRefComponents // //
 impl<'a, T0: Component,>
 ReqRefComponentsDefinition<'a> for (T0, ) {
@@ -50,6 +53,12 @@ ReqRefComponents<'a> for (&'a T0, ) {
     fn retrieve(ecs: &'a ECS, eid: EntityID) -> Option<Self> {Some((
         ecs.get_store_ref::<T0>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,>
@@ -58,6 +67,13 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, ) {
         ecs.get_store_ref::<T0>().get_ref(eid)?,
         ecs.get_store_ref::<T1>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,T2: Component,>
@@ -67,6 +83,14 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, &'a T2, ) {
         ecs.get_store_ref::<T1>().get_ref(eid)?,
         ecs.get_store_ref::<T2>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result.push(ComponentID::of::<T2>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,T2: Component,T3: Component,>
@@ -77,6 +101,15 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, &'a T2, &'a T3, ) {
         ecs.get_store_ref::<T2>().get_ref(eid)?,
         ecs.get_store_ref::<T3>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result.push(ComponentID::of::<T2>());
+        result.push(ComponentID::of::<T3>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,T2: Component,T3: Component,T4: Component,>
@@ -88,6 +121,16 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, &'a T2, &'a T3, &'a T4, ) {
         ecs.get_store_ref::<T3>().get_ref(eid)?,
         ecs.get_store_ref::<T4>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result.push(ComponentID::of::<T2>());
+        result.push(ComponentID::of::<T3>());
+        result.push(ComponentID::of::<T4>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,T2: Component,T3: Component,T4: Component,T5: Component,>
@@ -100,6 +143,17 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, &'a T2, &'a T3, &'a T4, &'a T5, ) {
         ecs.get_store_ref::<T4>().get_ref(eid)?,
         ecs.get_store_ref::<T5>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result.push(ComponentID::of::<T2>());
+        result.push(ComponentID::of::<T3>());
+        result.push(ComponentID::of::<T4>());
+        result.push(ComponentID::of::<T5>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,T2: Component,T3: Component,T4: Component,T5: Component,T6: Component,>
@@ -113,6 +167,18 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, &'a T2, &'a T3, &'a T4, &'a T5, &'a T6
         ecs.get_store_ref::<T5>().get_ref(eid)?,
         ecs.get_store_ref::<T6>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result.push(ComponentID::of::<T2>());
+        result.push(ComponentID::of::<T3>());
+        result.push(ComponentID::of::<T4>());
+        result.push(ComponentID::of::<T5>());
+        result.push(ComponentID::of::<T6>());
+        result
+    }
 }
 
 impl<'a, T0: Component,T1: Component,T2: Component,T3: Component,T4: Component,T5: Component,T6: Component,T7: Component,>
@@ -127,6 +193,19 @@ ReqRefComponents<'a> for (&'a T0, &'a T1, &'a T2, &'a T3, &'a T4, &'a T5, &'a T6
         ecs.get_store_ref::<T6>().get_ref(eid)?,
         ecs.get_store_ref::<T7>().get_ref(eid)?,
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();
+        result.push(ComponentID::of::<T0>());
+        result.push(ComponentID::of::<T1>());
+        result.push(ComponentID::of::<T2>());
+        result.push(ComponentID::of::<T3>());
+        result.push(ComponentID::of::<T4>());
+        result.push(ComponentID::of::<T5>());
+        result.push(ComponentID::of::<T6>());
+        result.push(ComponentID::of::<T7>());
+        result
+    }
 }
 // // OptRefComponents // //
 impl<'a, T0: Component,>

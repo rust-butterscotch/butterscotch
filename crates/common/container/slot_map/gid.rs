@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct GID {
     idx: u32,
     gen: u16,

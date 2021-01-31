@@ -27,18 +27,15 @@ impl<T> GIDStore<T> {
 
     pub fn insert(&mut self, gid: GID, v: T) {
         let idx = gid.get_idx();
+        if self.data.len() <= idx { self.expand_lookup(); }
+        if self.lookup[idx].is_valid() { panic!("Slot already contains value"); }
+        self.set_raw(gid, v);
+    }
 
-        if self.data.len() <= idx {
-            self.expand_lookup();
-        }
-
-        if self.lookup[idx].is_valid() {
-            panic!("Slot already contains value");
-        }
-
-        self.lookup[idx] = gid.with_idx(self.data.len());
-        self.data.push(v);
-        self.indices.push(idx);
+    pub fn replace(&mut self, gid: GID, v: T) {
+        let idx = gid.get_idx();
+        if self.data.len() <= idx { self.expand_lookup(); }
+        self.set_raw(gid, v);
     }
 
     pub fn remove(&mut self, gid: GID) -> Option<T> {
@@ -154,6 +151,13 @@ impl<T> GIDStore<T> {
 
     fn expand_lookup(&mut self) {
         self.expand_lookup_by(RESERVE_BLOCK_SIZE.min(std::usize::MAX - self.lookup.len()))
+    }
+
+    fn set_raw(&mut self, gid: GID, v: T) {
+        let idx = gid.get_idx();
+        self.lookup[idx] = gid.with_idx(self.data.len());
+        self.data.push(v);
+        self.indices.push(idx);
     }
 }
 

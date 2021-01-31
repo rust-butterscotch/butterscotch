@@ -9,7 +9,10 @@ fn main() {
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** *      GENERATED FILE, DO NOT EDIT, IT WILL BE REGENERATED ON BUILD    * **
 ** ************************************************************************ */
-use crate::{Component, ECS, EntityID, ReqRefComponents, OptRefComponents, ReqRefComponentsDefinition, OptRefComponentsDefinition};
+
+use crate::{Component, ComponentID, ECS, EntityID, ReqRefComponents, OptRefComponents, ReqRefComponentsDefinition, OptRefComponentsDefinition};
+use arrayvec::ArrayVec;
+
 ",
 
 "// // ReqRefComponents // //",
@@ -24,6 +27,12 @@ ReqRefComponents<'a> for (%{&'a %TR, %}) {
     fn retrieve(ecs: &'a ECS, eid: EntityID) -> Option<Self> {Some((%{
         ecs.get_store_ref::<%TR>().get_ref(eid)?,%}
     ))}
+
+    fn ids() -> ArrayVec<[ComponentID; 8]> {
+        let mut result = ArrayVec::<[ComponentID; 8]>::new();%{
+        result.push(ComponentID::of::<%TR>());%}
+        result
+    }
 }
 "),
 
