@@ -10,8 +10,7 @@ fn main() {
 ** *      GENERATED FILE, DO NOT EDIT, IT WILL BE REGENERATED ON BUILD    * **
 ** ************************************************************************ */
 
-use crate::{Component, ComponentID, ECS, EntityID, ReqRefComponents, OptRefComponents, ReqRefComponentsDefinition, OptRefComponentsDefinition};
-use arrayvec::ArrayVec;
+use crate::{Component, ECS, EntityID, ReqRefComponents, OptRefComponents, ReqRefComponentsDefinition, OptRefComponentsDefinition, QueryID};
 
 ",
 
@@ -28,9 +27,9 @@ ReqRefComponents<'a> for (%{&'a %TR, %}) {
         ecs.get_store_ref::<%TR>().get_ref(eid)?,%}
     ))}
 
-    fn ids() -> ArrayVec<[ComponentID; 8]> {
-        let mut result = ArrayVec::<[ComponentID; 8]>::new();%{
-        result.push(ComponentID::of::<%TR>());%}
+    fn ids() -> QueryID {
+        let mut result = QueryID::new();%{
+        result.push(%TR::ID);%}
         result
     }
 }

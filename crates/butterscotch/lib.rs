@@ -4,4 +4,12 @@
 
 pub use butterscotch_common::*;
 pub use butterscotch_core::*;
-pub mod render { pub use butterscotch_render::*; }
+
+pub mod ecs {
+    pub use butterscotch_ecs_derive::Component;
+    pub use butterscotch_ecs::*;
+}
+
+pub mod render { 
+    pub use butterscotch_render::*; 
+}

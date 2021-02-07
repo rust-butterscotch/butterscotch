@@ -4,4 +4,9 @@
 
 use std::{any::Any, fmt::Debug};
 
-pub trait Component: Any + Debug {}
+use crate::ComponentID;
+
+pub trait Component: Any + Debug {
+    const ID: ComponentID;
+    const ID_STR: &'static str;
+}

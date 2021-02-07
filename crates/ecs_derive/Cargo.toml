@@ -1,13 +1,15 @@
 [package]
-name = "butterscotch-test"
+name = "butterscotch-ecs-derive"
 version = "0.0.1"
 authors = ["Michael Baker <butterscotch@notvery.moe>"]
 edition = "2018"
 license = "Apache-2.0"
 
-[[bin]]
-name="butterscotch_test"
-path="./main.rs"
+[lib]
+path="./lib.rs"
+proc-macro = true
 
 [dependencies]
-butterscotch = { path = "../butterscotch" }
+syn = "1.0"
+fs2 = "0.4.3"
+regex = "1"

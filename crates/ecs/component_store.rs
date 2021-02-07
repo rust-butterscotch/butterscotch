@@ -1,9 +1,18 @@
+use std::any::Any;
+
 /* ************************************************************************ **
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
-use crate::{Component, EntityID};
+use crate::{Component, ComponentID, EntityID};
 use butterscotch_common::container::{GIDStore};
 
+pub trait ComponentStoreAny: Any + std::fmt::Debug {
+    fn component_id(&self)     -> ComponentID;
+    fn component_id_str(&self) -> &'static str;
+}
+
+
+#[derive(Debug)]
 pub struct ComponentStore<T: Component> {
     store: GIDStore<T>,
 }
@@ -14,6 +23,11 @@ impl<T: Component> Default for ComponentStore<T> {
             store: Default::default()
         }
     }
+}
+
+impl<T: Component> ComponentStoreAny for ComponentStore<T> {
+    fn component_id(&self)     -> ComponentID  { T::ID     }
+    fn component_id_str(&self) -> &'static str { T::ID_STR }
 }
 
 impl<T: Component> ComponentStore<T> {

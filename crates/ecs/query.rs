@@ -4,7 +4,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use arrayvec::ArrayVec;
 use butterscotch_common::container::GIDStore;
 
 use crate::{ComponentID, EntityID, QueryID, ReqRefComponents, ReqRefComponentsDefinition};
@@ -22,8 +21,8 @@ pub struct QueryContainer {
 
 #[derive(Debug, Default)]
 pub struct QueryData {
-    target: u8,
-    masks: GIDStore<u8>,
+    length: i8,
+    masks: GIDStore<i8>,
     entities: HashSet<EntityID>,
 }
 
@@ -53,22 +52,31 @@ impl QueryContainer {
 
         // Create query
         let mut data = QueryData::default();
-        for _ in 0..ids.len() { data.target = data.target << 1 | 1; } // Create "complete" mask
+        debug_assert!(ids.len() <= std::i8::MAX as usize, "Mask overflow");
+        data.length = ids.len() as i8;
         self.queries.insert(ids.clone(), data);
 
         return ids;
     }
 
-    pub fn update_presence(&mut self, eid: EntityID, id: QueryID, index: u8, attached: bool) {
+    pub fn update_presence(&mut self, eid: EntityID, id: QueryID, index: u8, attach: bool) {
         assert!((index as usize) < id.len(), "Query index out of range.");
         match self.queries.get_mut(&id) {
             Some(v) => {
-                let key = v.masks.get(eid).copied().unwrap_or(0);
-                let key = if attached { key | (1 << index) } else { key & !(1 << index) };
-                v.masks.replace(eid, key);
-                if key == v.target {
-                    v.entities.insert(eid);
-                } else {
+                let mask_old = v.masks.get(eid).copied().unwrap_or(0);
+
+                // Modify mask
+                let mask_new = mask_old + (if attach { 1 } else  { -1 });
+                debug_assert!(mask_new >= 0,        "Mask dropped below zero"       );
+                debug_assert!(mask_new <= v.length, "Mask raised above query length");
+                v.masks.replace(eid, mask_new);
+
+                // Update entities
+                if mask_new == v.length {
+                    if mask_old < v.length { 
+                        v.entities.insert(eid); 
+                    }
+                } else if mask_old >= v.length { 
                     v.entities.remove(&eid);
                 }
             },
