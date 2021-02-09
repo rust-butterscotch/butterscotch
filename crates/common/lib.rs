@@ -9,6 +9,8 @@
 #![feature(core_intrinsics)]
 #![feature(maybe_uninit_ref)]
 #![feature(const_mut_refs)]
+#![feature(box_syntax)]
+#![feature(maybe_uninit_uninit_array)]
 
 #[macro_use] extern crate static_assertions;
 

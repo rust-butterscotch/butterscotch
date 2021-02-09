@@ -1,8 +1,7 @@
-use std::any::Any;
-
 /* ************************************************************************ **
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
+use std::any::Any;
 use crate::{Component, ComponentID, EntityID};
 use butterscotch_common::container::{GIDStore};
 

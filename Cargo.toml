@@ -6,6 +6,9 @@ members = [
     "crates/common",
     "crates/core",
     "crates/ecs",
+    "crates/ecs_derive",
     "crates/render",
     "crates/test",
+
+    "crates_standalone/chunky_vec",
 ]
