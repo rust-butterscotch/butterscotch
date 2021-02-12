@@ -15,8 +15,8 @@ pub struct ECS {
 
 impl ECS {
 
-    pub fn register_component<T: Component>(&mut self) {
-        let result = self.component_stores.insert(T::ID, box ComponentStore::<T>::default());
+    pub fn register_component<T: Component>(&mut self, chunk_size: usize) {
+        let result = self.component_stores.insert(T::ID, box ComponentStore::<T>::new(chunk_size));
         assert!(result.is_none(), "ComponentID({}) conflict between \"{}\" and \"{}\"", T::ID.0, T::ID_STR, result.unwrap().component_id_str());
     }
 

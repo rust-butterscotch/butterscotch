@@ -2,15 +2,24 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
+use butterscotch_chunky_vec::ChunkyVecIter;
+
 use super::{ComponentMapKeyIter, GIDRegistry, GIDStore, GID};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct SlotMap<T> {
     registry: GIDRegistry,
     store:    GIDStore<T>
 }
 
 impl<T> SlotMap<T> {
+
+    pub fn new(chunk_size: usize) -> Self {
+        Self{
+            registry: Default::default(),
+            store:    GIDStore::new(chunk_size)
+        }
+    }
 
     pub fn insert(&mut self, v: T) -> GID {
         let gid = self.registry.acquire();
@@ -56,13 +65,14 @@ impl<T> SlotMap<T> {
         self.registry.freelist_len()
     }
 
-    pub fn iter(&self) -> core::slice::Iter<'_, T> {
+    pub fn iter(&self) -> ChunkyVecIter<'_, T> {
         self.store.iter()
     }
 
-    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, T> {
-        self.store.iter_mut()
-    }
+    // TODO fix....
+    //pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, T> {
+    //    self.store.iter_mut()
+    //}
 
     pub fn reserve(&mut self, additional: usize) {
         self.registry.reserve(additional);

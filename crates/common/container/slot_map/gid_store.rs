@@ -2,28 +2,27 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use super::gid::GID;
+use butterscotch_chunky_vec::ChunkyVecIter;
 
-const RESERVE_BLOCK_SIZE: usize = 128;
+use super::gid::GID;
+use crate::container::ChunkyVec;
 
 #[derive(Debug)]
 pub struct GIDStore<T> {
-    lookup: Vec<GID>,
-    data:   Vec<T>,
+    lookup:  ChunkyVec<GID>,
+    data:    ChunkyVec<T>,
     indices: Vec<usize>,
 }
 
-impl<T> Default for GIDStore<T> {
-    fn default() -> GIDStore<T> {
+impl<T> GIDStore<T> {
+
+    pub fn new(chunk_size: usize) -> GIDStore<T> {
         GIDStore{
-            lookup:  Default::default(),
-            data:    Default::default(),
-            indices: Default::default(),
+            lookup:  ChunkyVec::new(chunk_size),
+            data:    ChunkyVec::new(chunk_size),
+            indices: Vec::new(),
         }
     }
-}
-
-impl<T> GIDStore<T> {
 
     pub fn insert(&mut self, gid: GID, v: T) {
         let idx = gid.get_idx();
@@ -109,13 +108,14 @@ impl<T> GIDStore<T> {
         self.data.len()
     }
 
-    pub fn iter(&self) -> core::slice::Iter<'_, T> {
+    pub fn iter(&self) -> ChunkyVecIter<'_, T> {
         self.data.iter()
     }
 
-    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, T> {
-        self.data.iter_mut()
-    }
+    // TODO fix....
+    //pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, T> {
+    //    self.data.iter_mut() 
+    //}
 
     pub fn reserve(&mut self, additional: usize) {
         self.data.reserve(additional);
@@ -140,17 +140,13 @@ impl<T> GIDStore<T> {
     }
 
     //TODO pub fn retain<F>(&mut self, f: F) where F: FnMut(&K, &mut V) -> bool,
-
-    fn expand_lookup_by(&mut self, reserve_count: usize) {
-        let lookup_len = self.lookup.len();
-        if lookup_len >= std::usize::MAX - 1 { panic!("SlotMap out of memory"); }
-
-        self.lookup.resize(lookup_len + reserve_count, GID::new());
-        self.data.reserve(reserve_count);
-    }
-
     fn expand_lookup(&mut self) {
-        self.expand_lookup_by(RESERVE_BLOCK_SIZE.min(std::usize::MAX - self.lookup.len()))
+        let chunk_size = self.data.chunk_size();
+        let lookup_len = self.lookup.len();
+        if lookup_len >= std::usize::MAX-chunk_size { panic!("SlotMap out of memory"); }
+
+        self.lookup.resize(lookup_len + chunk_size, GID::new());
+        self.data.reserve(chunk_size);
     }
 
     fn set_raw(&mut self, gid: GID, v: T) {

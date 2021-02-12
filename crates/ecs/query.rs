@@ -19,15 +19,28 @@ pub struct QueryContainer {
     queries: HashMap<QueryID, QueryData>
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct QueryData {
     length: i8,
     masks: GIDStore<i8>,
     entities: HashSet<EntityID>,
 }
 
+impl QueryData {
+    pub fn new(chunk_size: usize) -> Self {
+        Self{
+            length: 0,
+            masks: GIDStore::new(chunk_size),
+            entities: Default::default() // TODO quick hasher function
+        }
+    }
+}
+
 pub trait QueryUpdater {
     fn register_query(&mut self, query: (QueryID, u8));
+
+
+    fn get_count_hint(&self) -> Option<usize>;
 }
 
 impl QueryContainer {
@@ -45,13 +58,20 @@ impl QueryContainer {
             if !updaters.contains_key(&id) { return ids; }
         }
 
+        let mut size_hint: Option<usize> = None;
+
         // Register query with all component types
         for i in 0..ids.len() {
-            updaters.get_mut(&ids[i]).unwrap().register_query((ids.clone(), i as u8));
+            let query_updater = updaters.get_mut(&ids[i]).unwrap();
+            query_updater.register_query((ids.clone(), i as u8));
+            match query_updater.get_count_hint() {
+                Some(v) => size_hint = Some(size_hint.unwrap_or(0).max(v)),
+                None    => {},
+            }
         }
 
         // Create query
-        let mut data = QueryData::default();
+        let mut data = QueryData::new(size_hint.unwrap_or(1024));
         debug_assert!(ids.len() <= std::i8::MAX as usize, "Mask overflow");
         data.length = ids.len() as i8;
         self.queries.insert(ids.clone(), data);

@@ -16,20 +16,18 @@ pub struct ComponentStore<T: Component> {
     store: GIDStore<T>,
 }
 
-impl<T: Component> Default for ComponentStore<T> {
-    fn default() -> Self {
-        Self{
-            store: Default::default()
-        }
-    }
-}
-
 impl<T: Component> ComponentStoreAny for ComponentStore<T> {
     fn component_id(&self)     -> ComponentID  { T::ID     }
     fn component_id_str(&self) -> &'static str { T::ID_STR }
 }
 
 impl<T: Component> ComponentStore<T> {
+
+    pub fn new(chunk_size: usize) -> Self {
+        Self{
+            store: GIDStore::new(chunk_size)
+        }
+    }
 
     pub fn get_ref(&self, eid: EntityID) -> Option<& T> {
         self.store.get(eid)

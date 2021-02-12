@@ -21,10 +21,10 @@ struct Component4 {}
 
 fn main() {
     let mut ecs = ECS::default();
-    ecs.register_component::<Component1>();
-    ecs.register_component::<Component2>();
-    ecs.register_component::<Component3>();
-    ecs.register_component::<Component4>();
+    ecs.register_component::<Component1>(4096);
+    ecs.register_component::<Component2>(4096);
+    ecs.register_component::<Component3>(4096);
+    ecs.register_component::<Component4>(4096);
     if let Some(v) = call::<((Component1, Component2), ())>(&ecs, EntityID::new()) {
         println!("{:?}", v);
     }

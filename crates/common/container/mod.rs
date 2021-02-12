@@ -5,3 +5,4 @@
 mod slot_map;
 
 pub use slot_map::*;
+pub use butterscotch_chunky_vec::*;
