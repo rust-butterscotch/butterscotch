@@ -1,7 +1,29 @@
+/* ************************************************************************ **
+** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
+** ************************************************************************ */
 
 use std::ops::{Index, IndexMut};
 
 use crate::Chunk;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ChunkSize {
+    Elements(usize),
+    MaxBytes(usize),
+}
+
+impl ChunkSize {
+
+    pub fn into_chunk_size<T>(self) -> usize {
+        let chunk_size = match self {
+            ChunkSize::Elements(v) => v,
+            ChunkSize::MaxBytes(v) => v/std::mem::size_of::<T>(),
+        };
+        chunk_size.max(1)
+    }
+
+}
+
 
 #[derive(Debug)]
 pub struct ChunkyVec<T> {
@@ -11,9 +33,9 @@ pub struct ChunkyVec<T> {
 }
 
 impl<T> ChunkyVec<T> {
-    pub fn new(chunk_size: usize) -> Self {
+    pub fn new(chunk_size: ChunkSize) -> Self {
         Self{
-            chunk_size,
+            chunk_size: chunk_size.into_chunk_size::<T>(),
             length: 0,
             chunks: Default::default()
         }

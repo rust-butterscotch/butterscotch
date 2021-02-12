@@ -1,10 +1,13 @@
-use crate::ChunkyVec;
+/* ************************************************************************ **
+** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
+** ************************************************************************ */
 
+use crate::{ChunkSize, ChunkyVec};
 
 #[test]
 fn test() -> Result<(), String> {
-    let mut v = ChunkyVec::<usize>::new(4096);
-    do_test::<4096>(&mut v, 8)
+    let mut v = ChunkyVec::<usize>::new(ChunkSize::Elements(1024));
+    do_test::<1024>(&mut v, 8)
 }
 
 fn do_test<const N: usize>(v: &mut ChunkyVec::<usize>, limit: usize) -> Result<(), String> {

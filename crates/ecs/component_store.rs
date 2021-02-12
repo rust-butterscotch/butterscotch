@@ -3,7 +3,7 @@
 ** ************************************************************************ */
 use std::any::Any;
 use crate::{Component, ComponentID, EntityID};
-use butterscotch_common::container::{GIDStore};
+use butterscotch_common::container::{ChunkSize, GIDStore};
 
 pub trait ComponentStoreAny: Any + std::fmt::Debug {
     fn component_id(&self)     -> ComponentID;
@@ -23,7 +23,7 @@ impl<T: Component> ComponentStoreAny for ComponentStore<T> {
 
 impl<T: Component> ComponentStore<T> {
 
-    pub fn new(chunk_size: usize) -> Self {
+    pub fn new(chunk_size: ChunkSize) -> Self {
         Self{
             store: GIDStore::new(chunk_size)
         }

@@ -1,7 +1,7 @@
 /* ************************************************************************ **
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
-use butterscotch::ecs::{Component, ComponentID, ComponentRequestTupleDefinition, ECS, EntityID, OptRefComponents, ReqRefComponents};
+use butterscotch::{container::ChunkSize, ecs::{Component, ComponentID, ComponentRequestTupleDefinition, ECS, EntityID, OptRefComponents, ReqRefComponents}};
 
 #[derive(Debug, Component)]
 #[component_ns = "Butterscotch"]
@@ -21,10 +21,10 @@ struct Component4 {}
 
 fn main() {
     let mut ecs = ECS::default();
-    ecs.register_component::<Component1>(4096);
-    ecs.register_component::<Component2>(4096);
-    ecs.register_component::<Component3>(4096);
-    ecs.register_component::<Component4>(4096);
+    ecs.register_component::<Component1>(ChunkSize::Elements(4096));
+    ecs.register_component::<Component2>(ChunkSize::Elements(4096));
+    ecs.register_component::<Component3>(ChunkSize::Elements(4096));
+    ecs.register_component::<Component4>(ChunkSize::Elements(4096));
     if let Some(v) = call::<((Component1, Component2), ())>(&ecs, EntityID::new()) {
         println!("{:?}", v);
     }

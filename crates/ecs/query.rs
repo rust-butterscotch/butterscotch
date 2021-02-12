@@ -4,7 +4,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use butterscotch_common::container::GIDStore;
+use butterscotch_common::container::{ChunkSize, GIDStore};
 
 use crate::{ComponentID, EntityID, QueryID, ReqRefComponents, ReqRefComponentsDefinition};
 
@@ -27,7 +27,7 @@ pub struct QueryData {
 }
 
 impl QueryData {
-    pub fn new(chunk_size: usize) -> Self {
+    pub fn new(chunk_size: ChunkSize) -> Self {
         Self{
             length: 0,
             masks: GIDStore::new(chunk_size),
@@ -71,7 +71,7 @@ impl QueryContainer {
         }
 
         // Create query
-        let mut data = QueryData::new(size_hint.unwrap_or(1024));
+        let mut data = QueryData::new(ChunkSize::Elements(size_hint.unwrap_or(1024)));
         debug_assert!(ids.len() <= std::i8::MAX as usize, "Mask overflow");
         data.length = ids.len() as i8;
         self.queries.insert(ids.clone(), data);

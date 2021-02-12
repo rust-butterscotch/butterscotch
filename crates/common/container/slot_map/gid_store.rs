@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch_chunky_vec::ChunkyVecIter;
+use butterscotch_chunky_vec::{ChunkSize, ChunkyVecIter};
 
 use super::gid::GID;
 use crate::container::ChunkyVec;
@@ -16,7 +16,7 @@ pub struct GIDStore<T> {
 
 impl<T> GIDStore<T> {
 
-    pub fn new(chunk_size: usize) -> GIDStore<T> {
+    pub fn new(chunk_size: ChunkSize) -> GIDStore<T> {
         GIDStore{
             lookup:  ChunkyVec::new(chunk_size),
             data:    ChunkyVec::new(chunk_size),

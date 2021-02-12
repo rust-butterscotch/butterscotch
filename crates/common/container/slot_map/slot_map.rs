@@ -2,7 +2,7 @@
 ** * ©2020 Michael Baker (butterscotch@notvery.moe) | Apache License v2.0 * **
 ** ************************************************************************ */
 
-use butterscotch_chunky_vec::ChunkyVecIter;
+use butterscotch_chunky_vec::{ChunkSize, ChunkyVecIter};
 
 use super::{ComponentMapKeyIter, GIDRegistry, GIDStore, GID};
 
@@ -14,7 +14,7 @@ pub struct SlotMap<T> {
 
 impl<T> SlotMap<T> {
 
-    pub fn new(chunk_size: usize) -> Self {
+    pub fn new(chunk_size: ChunkSize) -> Self {
         Self{
             registry: Default::default(),
             store:    GIDStore::new(chunk_size)

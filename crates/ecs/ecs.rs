@@ -4,7 +4,7 @@
 
 use std::{collections::HashMap};
 
-use butterscotch_common::utility::{downcast_mut_unchecked, downcast_ref_unchecked};
+use butterscotch_common::{container::ChunkSize, utility::{downcast_mut_unchecked, downcast_ref_unchecked}};
 
 use crate::{BadIntHasher, Component, ComponentID, ComponentStore, ComponentStoreAny};
 
@@ -15,7 +15,7 @@ pub struct ECS {
 
 impl ECS {
 
-    pub fn register_component<T: Component>(&mut self, chunk_size: usize) {
+    pub fn register_component<T: Component>(&mut self, chunk_size: ChunkSize) {
         let result = self.component_stores.insert(T::ID, box ComponentStore::<T>::new(chunk_size));
         assert!(result.is_none(), "ComponentID({}) conflict between \"{}\" and \"{}\"", T::ID.0, T::ID_STR, result.unwrap().component_id_str());
     }
