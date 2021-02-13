@@ -28,7 +28,7 @@ impl ChunkSize {
 #[derive(Debug)]
 pub struct ChunkyVec<T> {
     chunk_size: usize,
-    length: usize,
+    chunks_used: usize,
     chunks: Vec<Chunk<T>>,
 }
 
@@ -36,7 +36,7 @@ impl<T> ChunkyVec<T> {
     pub fn new(chunk_size: ChunkSize) -> Self {
         Self{
             chunk_size: chunk_size.into_chunk_size::<T>(),
-            length: 0,
+            chunks_used: 0,
             chunks: Default::default()
         }
     }
@@ -44,7 +44,7 @@ impl<T> ChunkyVec<T> {
     pub fn with_capacity(chunk_size: usize, capacity: usize) -> Self {
         Self{
             chunk_size,
-            length: 0,
+            chunks_used: 0,
             chunks: std::iter::repeat_with(|| Chunk::new(chunk_size)).take((capacity+chunk_size-1)/chunk_size).collect()
         }
     }
@@ -68,16 +68,16 @@ impl<T> ChunkyVec<T> {
     }
 
     pub fn clear(&mut self) {
-        for i in 0..self.length {
+        for i in 0..self.chunks_used {
             self.chunks[i].clear();
         }
-        self.length = 0;
+        self.chunks_used = 0;
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        if self.length <= 0 { return None; }
-        let result = self.chunks[self.length - 1].pop();
-        if self.chunks[self.length - 1].is_empty() { self.length = self.length - 1; }
+        if self.chunks_used <= 0 { return None; }
+        let result = self.chunks[self.chunks_used - 1].pop();
+        if self.chunks[self.chunks_used - 1].is_empty() { self.chunks_used = self.chunks_used - 1; }
         result
     }
 
@@ -86,7 +86,7 @@ impl<T> ChunkyVec<T> {
         let index_within = index - index_chunk*self.chunk_size;
         
         let mut carry = None;
-        for i in (index_chunk..self.length).rev() {
+        for i in (index_chunk..self.chunks_used).rev() {
             let carry_new = self.chunks[i].remove(if i == index_chunk { index_within } else { 0 });
             if carry.is_some() { self.chunks[i].push(carry.unwrap()); }
             carry = Some(carry_new);
@@ -96,32 +96,32 @@ impl<T> ChunkyVec<T> {
     }
 
     pub fn swap_remove(&mut self, index: usize) -> T {
-        assert!(self.length > 0, "Attempt to index out of bounds");
+        assert!(self.chunks_used > 0, "Attempt to index out of bounds");
         let tmp = self.pop().unwrap();
         if index+1 == self.len() { return tmp; }
         return std::mem::replace(&mut self[index], tmp);
     }
 
     pub fn push(&mut self, value: T) {
-        if self.length == 0 || self.chunks[self.length - 1].exhausted() {
-            if self.length >= self.chunks.len() {
+        if self.chunks_used == 0 || self.chunks[self.chunks_used - 1].exhausted() {
+            if self.chunks_used >= self.chunks.len() {
                 self.chunks.push(Chunk::new(self.chunk_size));
             }
-            self.length += 1;
+            self.chunks_used += 1;
         }
-        self.chunks[self.length-1].push(value);
+        self.chunks[self.chunks_used-1].push(value);
     }
 
     pub fn insert(&mut self, value: T, index: usize) -> Option<T> {
         let index_chunk = index/self.chunk_size;
         let index_within = index - index_chunk*self.chunk_size;
 
-        if (index_chunk > self.length) || (index_within > self.chunks[index_chunk].len()) {
+        if (index_chunk > self.chunks_used) || (index_within > self.chunks[index_chunk].len()) {
             Some(value)
         } else {
             let mut carry = self.chunks[index_chunk].insert(value, index_within);
             if carry.is_some() {
-                for i in index_chunk+1..self.length {
+                for i in index_chunk+1..self.chunks_used {
                     carry = self.chunks[i].insert(carry.unwrap(), 0);
                     if carry.is_none() { break; }
                 }
@@ -183,21 +183,21 @@ impl<T> ChunkyVec<T> {
         self.reserve(count)
     }
 
-    pub fn truncate(&mut self, length: usize) {
-        let blocks = 1+(length/self.chunk_size); // TODO is this right? Probably not...
-        if blocks > self.length { return; }
-        for i in blocks..self.length {
+    pub fn truncate(&mut self, chunks_used: usize) {
+        let blocks = 1+(chunks_used/self.chunk_size); // TODO is this right? Probably not...
+        if blocks > self.chunks_used { return; }
+        for i in blocks..self.chunks_used {
             self.chunks[i-1].clear();
         }
-        self.length = blocks;
+        self.chunks_used = blocks;
 
-        let within_block = length - (blocks-1)*self.chunk_size;
+        let within_block = chunks_used - (blocks-1)*self.chunk_size;
         self.chunks[blocks - 1].truncate(self.chunk_size - within_block);
     }
 
     pub fn shrink_to_fit(&mut self) {
-        debug_assert!(self.length <= self.chunks.len());
-        self.chunks.truncate(self.length);
+        debug_assert!(self.chunks_used <= self.chunks.len());
+        self.chunks.truncate(self.chunks_used);
         self.chunks.shrink_to_fit();
     }
 
@@ -206,20 +206,20 @@ impl<T> ChunkyVec<T> {
     }
 
     pub fn len(&self) -> usize {
-        if self.length == 0 { return 0; }
-        self.chunks[self.length-1].len() + (self.length-1)*self.chunk_size
+        if self.chunks_used == 0 { return 0; }
+        self.chunks[self.chunks_used-1].len() + (self.chunks_used-1)*self.chunk_size
     }
 
     pub fn is_empty(&self) -> bool {
-        self.length == 0
+        self.chunks_used == 0
     }
     
     pub fn chunk_size(&self) -> usize {
         self.chunk_size
     }
 
-    pub fn chunk_length(&self) -> usize {
-        self.length
+    pub fn chunks_used(&self) -> usize {
+        self.chunks_used
     }
 }
 

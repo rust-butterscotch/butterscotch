@@ -10,5 +10,5 @@ members = [
     "crates/render",
     "crates/test",
 
-    "crates_standalone/chunky_vec",
+    "crates_standalone/chunky_vec"
 ]

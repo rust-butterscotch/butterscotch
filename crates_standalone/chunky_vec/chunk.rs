@@ -5,6 +5,7 @@
 use std::ops::{Index, IndexMut};
 
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct Chunk<T>(Vec<T>);
 
 impl<T> Chunk<T> {
