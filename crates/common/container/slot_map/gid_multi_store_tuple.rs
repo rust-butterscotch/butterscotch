@@ -19,22 +19,16 @@ generate_tuple_impls!(8, r"
     impl<%{%TR: 'static,%}> MultiStoreIO for (%{%TR,%}) {
         fn insert(self, vec: &mut <Self as TupleElementWrapper>::WrapWith<ChunkyVec<()>>, idx: usize) {
             let (%{v%VI,%}) = self;
-            %{
-            assert!(vec.get_%VI().len() == idx);%}
-            %{
-            vec.get_mut_%VI().push(v%VI);%}
+            %{assert!(vec.get_%VI().len() == idx);%}
+            %{vec.get_mut_%VI().push(v%VI);%}
         }
         
         fn get<'a>(vec: &'a <Self as TupleElementWrapper>::WrapWith<ChunkyVec<()>>, idx: usize) -> Self::AsRef<'a> {
-            return (%{
-                vec.get_%VI().get(idx).unwrap(),%}
-            );
+            return (%{vec.get_%VI().get(idx).unwrap(),%});
         }
 
         fn swap_remove(vec: &mut <Self as TupleElementWrapper>::WrapWith<ChunkyVec<()>>, idx: usize) -> Self {
-            return (%{
-                vec.get_mut_%VI().swap_remove(idx),%}
-            );
+            return (%{vec.get_mut_%VI().swap_remove(idx),%});
         }
     }
 ");
