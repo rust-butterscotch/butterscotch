@@ -6,14 +6,14 @@ use butterscotch_chunky_vec::ChunkyVec;
 
 use crate::tuple::{TupleElementGetter, TupleElementWrapper, TupleRef};
 
-use super::{GID, GIDLookup, MultiStoreIO};
+use super::{GID, GIDLookup, GIDMultiStoreHelper};
 
-pub struct GIDMultiStore<T: MultiStoreIO + TupleElementWrapper + TupleRef> where <T as TupleElementWrapper>::WrapWith<ChunkyVec<()>>: TupleElementGetter {
+pub struct GIDMultiStore<T: GIDMultiStoreHelper + TupleElementWrapper + TupleRef> where <T as TupleElementWrapper>::WrapWith<ChunkyVec<()>>: TupleElementGetter {
     lookup: GIDLookup,
     data: T::WrapWith<ChunkyVec<()>>
 }
 
-impl<T: MultiStoreIO + TupleElementWrapper> GIDMultiStore<T> where <T as TupleElementWrapper>::WrapWith<ChunkyVec<()>>: TupleElementGetter {
+impl<T: GIDMultiStoreHelper + TupleElementWrapper> GIDMultiStore<T> where <T as TupleElementWrapper>::WrapWith<ChunkyVec<()>>: TupleElementGetter {
 
     pub fn insert(&mut self, gid: GID, v: T) {
         let idx = self.lookup.insert(gid);
