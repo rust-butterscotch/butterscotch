@@ -5,7 +5,7 @@
 use butterscotch_chunky_vec::{ChunkSize, ChunkyVecIter};
 
 use super::gid::GID;
-use crate::container::ChunkyVec;
+use crate::{container::ChunkyVec, utility::GenericRetype};
 
 #[derive(Debug)]
 pub struct GIDStore<T> {
@@ -179,4 +179,8 @@ impl<'a, T> Iterator for ComponentMapKeyIter<'a, T> {
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.map.len(), Some(self.map.len()))
     }
+}
+
+impl<T> GenericRetype for GIDStore<T> {
+    type RetypeWith<R> = GIDStore<R>;
 }

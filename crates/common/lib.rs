@@ -11,6 +11,9 @@
 #![feature(const_mut_refs)]
 #![feature(box_syntax)]
 #![feature(maybe_uninit_uninit_array)]
+#![feature(generic_associated_types)]
+#![feature(associated_type_defaults)]
+#![feature(const_fn_fn_ptr_basics)]
 
 #[macro_use] extern crate static_assertions;
 

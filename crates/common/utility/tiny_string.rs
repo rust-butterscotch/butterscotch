@@ -166,11 +166,11 @@ impl<const WIDTH: usize> TinyString<WIDTH> {
         TinyString::try_from_slice(value.as_slice())
     }*/
     
-    fn try_from_string(value: &String) -> Result<Self, &'static str> {
+    pub fn try_from_string(value: &String) -> Result<Self, &'static str> {
         TinyString::try_from_ascii_slice(value.as_bytes())
     }
     
-    const fn try_from_str(value: &str) -> Result<Self, &'static str> {
+    pub const fn try_from_str(value: &str) -> Result<Self, &'static str> {
         TinyString::try_from_ascii_slice(value.as_bytes())
     }
     
@@ -189,33 +189,6 @@ impl<const WIDTH: usize> TinyString<WIDTH> {
 
         return Ok(result);
     }
-}
-
-// //////////////// //
-// // Const from // //
-// //////////////// //
-
-impl<const WIDTH: usize> TinyString<WIDTH> {
-    
-    pub fn from_string(value: &String) -> Self {
-        expect(&Self::try_from_string(value))
-    }
-    
-    pub const fn from_str(value: &str) -> Self {
-        expect(&Self::try_from_str(value))
-    }
-
-    /*pub const fn from_raw(value: u128) -> Self {
-        expect(&Self::try_from_raw(value))
-    }
-    
-    pub fn from_vec(value: &Vec<u8>) -> Self {
-        expect(&Self::try_from_vec(value))
-    }
-    
-    pub const fn from_slice(value: &[u8]) -> Self {
-        expect(&Self::try_from_slice(value))
-    }*/
 }
 
 // ///////////// //
@@ -247,16 +220,5 @@ impl<const WIDTH: usize> TryFrom<&str> for TinyString<WIDTH> {
     type Error = &'static str;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Self::try_from_str(value)
-    }
-}
-
-// ///////////// //
-// // Utility // //
-// ///////////// //
-
-const fn expect<T: Copy>(v: &Result<T, &'static str>) -> T {
-    match v {
-        Ok(v) => *v,
-        Err(v) => panic!(*v)
     }
 }

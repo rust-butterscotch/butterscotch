@@ -10,7 +10,6 @@ pub trait ComponentStoreAny: Any + std::fmt::Debug {
     fn component_id_str(&self) -> &'static str;
 }
 
-
 #[derive(Debug)]
 pub struct ComponentStore<T: Component> {
     store: GIDStore<T>,

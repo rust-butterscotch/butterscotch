@@ -13,3 +13,4 @@ static_assertions = "1.1.0"
 bitvec = "0.20.1"
 arrayvec = { version = "0.5.2", feature = ["unstable-const-fn"] }
 butterscotch-chunky-vec = { path="../../crates_standalone/chunky_vec" }
+butterscotch-codegen = { path = "../codegen" }

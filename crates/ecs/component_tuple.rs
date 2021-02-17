@@ -3,8 +3,9 @@
 ** ************************************************************************ */
 
 use arrayvec::ArrayVec;
+use butterscotch_codegen::generate_tuple_impls;
 
-use crate::{ComponentID, ECS, EntityID};
+use crate::{Component, ComponentID, ECS, EntityID, QueryID};
 
 // // Storage types // //
 
@@ -61,3 +62,38 @@ impl<'a> OptRefComponentsDefinition<'a> for () {
     type TupleType = ();
 }
 
+// // Impl Tuples // //
+
+generate_tuple_impls!(8, r"
+    impl<'a, %{%TR: Component,%}>
+    ReqRefComponentsDefinition<'a> for (%{%TR, %}) {
+        type TupleType = (%{&'a %TR, %});
+    }
+
+    impl<'a, %{%TR: Component,%}>
+    ReqRefComponents<'a> for (%{&'a %TR, %}) {
+        fn retrieve(ecs: &'a ECS, eid: EntityID) -> Option<Self> {Some((%{
+            ecs.get_store_ref::<%TR>().get_ref(eid)?,%}
+        ))}
+
+        fn ids() -> QueryID {
+            let mut result = QueryID::new();%{
+            result.push(%TR::ID);%}
+            result
+        }
+    }
+");
+
+generate_tuple_impls!(8, r"
+    impl<'a, %{%TR: Component,%}>
+    OptRefComponentsDefinition<'a> for (%{%TR, %}) {
+        type TupleType = (%{Option<&'a %TR>, %});
+    }
+
+    impl<'a, %{%TR: Component,%}>
+    OptRefComponents<'a> for (%{Option<&'a %TR>, %}) {
+        fn retrieve(ecs: &'a ECS, eid: EntityID) -> Self {(%{
+            ecs.get_store_ref::<%TR>().get_ref(eid),%}
+        )}
+    }
+");

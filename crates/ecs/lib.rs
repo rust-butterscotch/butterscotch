@@ -16,7 +16,6 @@ mod ecs;
 
 mod component;
 mod component_tuple;
-mod component_tuple_gen;
 
 mod component_store;
 
@@ -26,7 +25,6 @@ pub use ecs::*;
 
 pub use component::*;
 pub use component_tuple::*;
-pub use component_tuple_gen::*;
 
 pub use component_store::*;
 

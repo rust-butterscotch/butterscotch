@@ -14,10 +14,10 @@ lazy_static! {
     static ref VARIANT:  Regex = Regex::new(r"(?s)%VAR\[\((.*?)\)\|\((.*?)\)\]").expect("Could not construct regex");
 }
 
-pub fn process_tuple_string<const N: usize>(template: &str) -> String {
+pub fn process_tuple_string(count: usize, template: &str) -> String {
     let has_variant = VARIANT.is_match(template);
     let mut result = "".to_owned();
-    for i in 0..N {
+    for i in 0..count {
         result.push_str(&generate_tuple_string(template, i+1, has_variant));
     }
     return result;
@@ -52,16 +52,12 @@ fn generate_tuple_string(input: &str, tuple_n: usize, has_variant: bool) -> Stri
 fn generate_tuple_string_loop(input: &str, tuple_n: usize, variant_n: usize, has_variant: bool) -> String {
     let mut result = "".to_owned();
 
-
-
-    //let match_split_value   = Regex::new("%SV").expect("Could not construct regex");
-
     for i in 0..tuple_n {
 
         let is_variant = i >= variant_n;
         let tmp =    TYPE_RAW.replace_all(input, &format!("T{}",     i) as &str);
         let tmp =   VALUE_RAW.replace_all(&tmp,  &format!("self.{}", i) as &str);
-        let tmp = VALUE_INDEX.replace_all(&tmp,  &format!("v{}",     i) as &str);
+        let tmp = VALUE_INDEX.replace_all(&tmp,  &format!("{}",     i) as &str);
 
         let tmp = if has_variant { VARIANT.replace_all(
             &tmp,

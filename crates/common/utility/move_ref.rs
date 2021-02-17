@@ -77,7 +77,7 @@ impl<'a> MoveRef<'a> {
     /// Panics if the MoveRef is unoccupied, or if the value can't be downcast to the requested type.
     pub fn swap<T: Sized + Any + 'static>(&mut self, value: &mut T) {
         if unlikely!(self.try_swap(value)) {
-            panic!(if self.is_unoccupied() { ERROR_NO_VALUE } else { ERROR_NO_CAST })
+            panic!("{}", if self.is_unoccupied() { ERROR_NO_VALUE } else { ERROR_NO_CAST })
         }
     }
 
@@ -98,7 +98,7 @@ impl<'a> MoveRef<'a> {
     /// Panics if the MoveRef is unoccupied, without checking if the value can be safely downcast (except in Debug builds, it will panic)
     pub unsafe fn swap_unchecked<T: Sized + Any + 'static>(&mut self, value: &mut T) {
         if unlikely!(self.try_swap_unchecked(value)) {
-            panic!(ERROR_NO_VALUE)
+            panic!("{}", ERROR_NO_VALUE)
         }
     }
 
@@ -121,7 +121,7 @@ impl<'a> MoveRef<'a> {
     /// Panics if the MoveRef is occupied, or if the value can't be downcast to the requested type.
     pub fn set<T: Sized + Any + 'static>(&mut self, value: T) {
         match self.try_set(value) {
-            Some(_) => panic!(if self.is_occupied() { ERROR_HAS_VALUE } else { ERROR_NO_CAST }),
+            Some(_) => panic!("{}", if self.is_occupied() { ERROR_HAS_VALUE } else { ERROR_NO_CAST }),
             None    => {}
         }
     }
@@ -144,7 +144,7 @@ impl<'a> MoveRef<'a> {
     /// Panics if the MoveRef is occupied, without checking if the value can be safely downcast (except in Debug builds, it will panic)
     pub unsafe fn set_unchecked<T: Sized + Any + 'static>(&mut self, value: T) {
         match self.try_set_unchecked(value) {
-            Some(_) => panic!(if self.is_occupied() { ERROR_HAS_VALUE } else { ERROR_NO_CAST }),
+            Some(_) => panic!("{}", if self.is_occupied() { ERROR_HAS_VALUE } else { ERROR_NO_CAST }),
             None    => {}
         }
     }
@@ -169,7 +169,7 @@ impl<'a> MoveRef<'a> {
     pub fn unwrap<T: Sized + Any + 'static>(&mut self) -> T {
         match self.try_unwrap() {
             Some(v) => v,
-            None    => panic!(if self.is_unoccupied() { ERROR_NO_VALUE } else { ERROR_NO_CAST })
+            None    => panic!("{}", if self.is_unoccupied() { ERROR_NO_VALUE } else { ERROR_NO_CAST })
         }
     }
 
@@ -199,7 +199,7 @@ impl<'a> MoveRef<'a> {
     pub unsafe fn unwrap_unchecked<T: Sized + Any + 'static>(&mut self) -> T {
         match self.try_unwrap() {
             Some(v) => v,
-            None    => panic!(ERROR_NO_VALUE)
+            None    => panic!("{}", ERROR_NO_VALUE)
         }
     }
 

@@ -6,3 +6,9 @@ mod slot_map;
 
 pub use slot_map::*;
 pub use butterscotch_chunky_vec::*;
+
+use crate::utility::GenericRetype;
+
+impl<T> GenericRetype for ChunkyVec<T> {
+    type RetypeWith<R> = ChunkyVec<R>;
+}

@@ -116,6 +116,7 @@ impl<T> ChunkyVec<T> {
         let index_chunk = index/self.chunk_size;
         let index_within = index - index_chunk*self.chunk_size;
 
+        // TODO handle insert at end
         if (index_chunk > self.chunks_used) || (index_within > self.chunks[index_chunk].len()) {
             Some(value)
         } else {

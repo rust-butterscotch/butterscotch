@@ -8,9 +8,7 @@ license = "Apache-2.0"
 [lib]
 path="./lib.rs"
 
-[build-dependencies]
-butterscotch-codegen = { path = "../codegen"    }
-
 [dependencies]
+butterscotch-codegen = { path = "../codegen"    }
 butterscotch-common = { path = "../common"     }
 arrayvec = { version = "0.5.2", feature = ["unstable-const-fn"] }
